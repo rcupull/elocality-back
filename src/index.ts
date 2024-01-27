@@ -31,10 +31,8 @@ expressApp.get("/some-data", (request, response) => {
   response.send("Hello world");
 });
 
-if (ENV === "dev") {
-  expressApp.listen(PORT, () => {
-    console.log(`Server running at port ${PORT}`);
-  });
-}
+expressApp.listen(PORT, () => {
+  console.log(`Server running at port ${PORT}`);
+});
 
 export const app = expressApp;

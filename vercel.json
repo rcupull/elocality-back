@@ -1,12 +1,14 @@
 {
   "version": 2,
+  "buildCommand": "npm run build",
+  "installCommand": "pnpm install",
   "builds": [
     {
       "src": "index.js",
-      "use": "@now/node"
+      "use": "@vercel/node"
     }
   ],
-  "routes": [
+  "rewrites": [
     {
       "src": "/(.*)",
       "dest": "index.js"
