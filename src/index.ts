@@ -1,24 +1,21 @@
 import express from "express";
-import dotenv from "dotenv";
 import { mainRouter } from "./routes";
 import cors from "cors";
 import swaggerUiExpress from "swagger-ui-express";
 
-//@ts-expect-error ignore
-import swaggerOutput from "./features/swagger/swagger_output.json";
+const PORT = process.env.PORT || "4009";
+const ENV = process.env.ENV || "prod";
+const DOC = process.env.DOC;
 
-dotenv.config();
-
-const port = process.env.PORT;
-const env = process.env.ENV;
 const app = express();
 
-if (env === "dev") {
-  // Serve Swagger documentation
+if (DOC === "true") {
   app.use(
     "/api-docs",
     swaggerUiExpress.serve,
-    swaggerUiExpress.setup(swaggerOutput, { explorer: true })
+    swaggerUiExpress.setup(require("./features/swagger/swagger_output.json"), {
+      explorer: true,
+    })
   );
 }
 
@@ -30,6 +27,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use("/", mainRouter);
 
-app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
+app.get("/some-data", (request, response) => {
+  response.send("Hello world");
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running at port ${PORT}`);
 });
