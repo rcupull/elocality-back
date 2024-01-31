@@ -3,9 +3,9 @@ import { AnyRecord } from "../types/general";
 import { v4 as uuid } from "uuid";
 import bcrypt from "bcrypt";
 
-import { sendEmail } from "../email";
 import { withTryCatch } from "../utils/error";
 import { SessionModel, UserModel, ValidationCodeModel } from "../schemas/auth";
+import { sendEmail } from "../features/email";
 
 export const router = Router();
 

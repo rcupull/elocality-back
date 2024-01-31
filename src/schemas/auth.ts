@@ -2,12 +2,7 @@ import { Schema, model } from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { SECRET_ACCESS_TOKEN } from "../constants/auth";
-
-interface ValidationCodeT {
-  code: string;
-  createdAt: Date;
-  userId: Schema.Types.ObjectId;
-}
+import { SessionT, UserT, ValidationCodeT } from "../types/auth";
 
 const ValidationCodeShema = new Schema<ValidationCodeT>({
   code: { type: String, required: true, unique: true },
@@ -22,18 +17,6 @@ export const ValidationCodeModel = model<ValidationCodeT>(
 );
 
 ///////////////////////////////////////////////////////////////////////////////
-
-export type UserRoleT = "user" | "admin";
-
-export interface UserT {
-  name: string;
-  email: string;
-  password: string;
-  role: UserRoleT;
-  createdAt: Date;
-  validated: boolean;
-  generateAccessJWT: () => string;
-}
 
 const UserSchema = new Schema<UserT>({
   name: { type: String, required: true },
@@ -75,12 +58,6 @@ UserSchema.pre("save", function (next) {
 export const UserModel = model<UserT>("User", UserSchema, "users");
 
 ///////////////////////////////////////////////////////////////////////////////
-
-interface SessionT {
-  token: string;
-  createdAt: Date;
-  userId: Schema.Types.ObjectId;
-}
 
 const SessionShema = new Schema<SessionT>({
   token: { type: String, required: true, unique: true },

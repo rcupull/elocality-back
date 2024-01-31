@@ -1,9 +1,9 @@
 import { RequestHandler } from "express";
-import { UserRoleT, UserT } from "../schemas/auth";
 import { withTryCatch } from "../utils/error";
 import jwt from "jsonwebtoken";
 import { UserModel } from "../schemas/auth";
 import { SECRET_ACCESS_TOKEN } from "../constants/auth";
+import { UserRoleT } from "../types/auth";
 
 export const verifySession: RequestHandler = (req, res, next) => {
   withTryCatch(
