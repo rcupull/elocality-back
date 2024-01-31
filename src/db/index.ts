@@ -1,40 +1,19 @@
-import { MongoClient, ServerApiVersion, Db, Collection } from "mongodb";
+import { connect } from "mongoose";
 
-const uri =
-  "mongodb+srv://rcupull:Alcatraz-32286-elocality-db@cluster0.3ageacp.mongodb.net/?retryWrites=true&w=majority";
+// type dbName = "elocality_auth";
 
-type DBName = "elocality-db";
-type CollectionName = "users";
+// const getUri = (db: dbName) => {
+//   return `mongodb+srv://rcupull:Alcatraz-32286-elocality-db@cluster0.3ageacp.mongodb.net/${db}?retryWrites=true&w=majority`;
+// };
 
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  },
-});
+// const elocalityAuthUri = getUri("elocality_auth");
 
-export const connectCRUD = async (args: {
-  callback: (args: {
-    client: MongoClient;
-    db: Db;
-    collection: Collection;
-  }) => Promise<void> | void;
-  dbName: DBName;
-  collectionName: CollectionName;
-}) => {
-  const { callback, collectionName, dbName } = args;
-
-  try {
-    await client.connect();
-    await client.db("admin").command({ ping: 1 });
-
-    const db = client.db(dbName);
-
-    const collection = db.collection(collectionName);
-
-    await callback({ client, collection, db });
-  } finally {
-    await client.close();
-  }
+export const connectDB = () => {
+  connect("mongodb://127.0.0.1:27017/community_db")
+    .then(() => {
+      console.log("connected");
+    })
+    .catch((e) => {
+      console.log(`Error: ${e}`);
+    });
 };

@@ -16,8 +16,8 @@
       "get": {
         "description": "",
         "responses": {
-          "200": {
-            "description": "OK"
+          "default": {
+            "description": ""
           }
         }
       }
@@ -38,6 +38,9 @@
         "responses": {
           "200": {
             "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
           }
         },
         "requestBody": {
@@ -63,8 +66,8 @@
       "post": {
         "description": "",
         "responses": {
-          "200": {
-            "description": "OK"
+          "201": {
+            "description": "Created"
           }
         },
         "requestBody": {
@@ -73,7 +76,7 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "accessToken": {
+                  "token": {
                     "example": "any"
                   }
                 }
@@ -87,8 +90,11 @@
       "post": {
         "description": "",
         "responses": {
-          "200": {
-            "description": "OK"
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request"
           }
         },
         "requestBody": {
@@ -105,8 +111,35 @@
                   },
                   "name": {
                     "example": "any"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/validate": {
+      "post": {
+        "description": "",
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "example": "any"
                   },
-                  "body": {
+                  "code": {
                     "example": "any"
                   }
                 }

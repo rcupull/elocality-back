@@ -1,23 +1,12 @@
-import { RequestHandler, Router } from "express";
-import { connectCRUD } from "../db";
-import { AnyRecord } from "../types/general";
+import { Router } from "express";
+import { verifySession } from "../middlewares/verify";
 
 export const router = Router();
 
-router.route("/").get((req: AnyRecord, res) => {
-  const { email, password, name } = req;
+router.route("/").get((req, res) => {
+  res.send();
+});
 
-  res.send("Hola");
-  //   connectCRUD({
-  //     dbName: "elocality-db",
-  //     collectionName: "users",
-  //     callback: async ({ client, collection, db }) => {
-  //       collection.insertOne({
-  //         email,
-  //         password,
-  //       });
-
-  //       res.send();
-  //     },
-  //   });
+router.route("/").post(verifySession, (req, res) => {
+  res.send();
 });

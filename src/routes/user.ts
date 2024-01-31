@@ -1,18 +1,15 @@
-import { RequestHandler, Router } from "express";
-import { connectCRUD } from "../db";
-import { AnyRecord } from "../types/general";
+import { Router } from "express";
+import { withTryCatch } from "../utils/error";
+import { UserModel } from "../schemas/auth";
 
 export const router = Router();
 
-router.route("/").get((req: AnyRecord, res) => {
-  const { name } = req;
-
-  connectCRUD({
-    dbName: "elocality-db",
-    collectionName: "users",
-    callback: async ({ collection }) => {
-      const users = await collection.find().toArray();
-      res.send(users);
-    },
+router.route("/").get((req, res) => {
+  withTryCatch(
+    "getUser",
+    res
+  )(async () => {
+    const users = await UserModel.find();
+    res.send(users);
   });
 });
