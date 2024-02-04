@@ -1,5 +1,5 @@
 import express from "express";
-import { mainRouter } from "./routes";
+import { router } from "./router";
 import cors from "cors";
 import swaggerUiExpress from "swagger-ui-express";
 import { connectDB } from "./db";
@@ -14,7 +14,7 @@ if (DOC === "true") {
   app.use(
     "/api-docs",
     swaggerUiExpress.serve,
-    swaggerUiExpress.setup(require("./features/swagger/swagger_output.json"), {
+    swaggerUiExpress.setup(require("../swagger_output.json"), {
       explorer: true,
     })
   );
@@ -24,7 +24,7 @@ app.use(cors({ origin: "*", optionsSuccessStatus: 200 }));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use("/", mainRouter);
+app.use("/", router);
 
 app.listen(PORT, () => {
   console.log(`Server running at port ${PORT}`);

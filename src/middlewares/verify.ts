@@ -1,15 +1,12 @@
 import { RequestHandler } from "express";
 import { withTryCatch } from "../utils/error";
 import jwt from "jsonwebtoken";
-import { UserModel } from "../schemas/auth";
 import { SECRET_ACCESS_TOKEN } from "../constants/auth";
 import { UserRoleT } from "../types/auth";
+import { UserModel } from "../features/user/schemas";
 
 export const verifySession: RequestHandler = (req, res, next) => {
-  withTryCatch(
-    "sessionVerify",
-    res
-  )(async () => {
+  withTryCatch(req, res, async () => {
     let token = req.headers["token"]; // get the session cookie from request header
 
     if (!token) {
@@ -50,10 +47,7 @@ export const verifySession: RequestHandler = (req, res, next) => {
 export const getVerifyRole =
   (roleToCheck: UserRoleT): RequestHandler =>
   (req, res, next) => {
-    withTryCatch(
-      "getVerifyRole",
-      res
-    )(async () => {
+    withTryCatch(req, res, async () => {
       //@ts-expect-error
       const user = req.user as UserT; // we have access to the user object from the request
 

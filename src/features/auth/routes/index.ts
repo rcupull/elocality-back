@@ -1,19 +1,16 @@
-import { Router } from "express";
-import { AnyRecord } from "../types/general";
+import { Request, Router } from "express";
 import { v4 as uuid } from "uuid";
 import bcrypt from "bcrypt";
 
-import { withTryCatch } from "../utils/error";
-import { SessionModel, UserModel, ValidationCodeModel } from "../schemas/auth";
-import { sendEmail } from "../features/email";
+import { withTryCatch } from "../../../utils/error";
+import { SessionModel, ValidationCodeModel } from "../schemas";
+import { sendEmail } from "../../email";
+import { UserModel } from "../../user/schemas";
 
 export const router = Router();
 
-router.route("/sign-in").post(async (req: AnyRecord, res) => {
-  withTryCatch(
-    "sing-in",
-    res
-  )(async () => {
+router.route("/sign-in").post(async (req: Request, res) => {
+  withTryCatch(req, res, async () => {
     const { email, password } = req.body;
 
     const user = await UserModel.findOne({ email }).select("+password");
@@ -58,11 +55,8 @@ router.route("/sign-in").post(async (req: AnyRecord, res) => {
   });
 });
 
-router.route("/sign-out").post(async (req: AnyRecord, res) => {
-  withTryCatch(
-    "signOut",
-    res
-  )(async () => {
+router.route("/sign-out").post(async (req: Request, res) => {
+  withTryCatch(req, res, async () => {
     const { token } = req.body;
 
     const session = await SessionModel.findOne({ token });
@@ -81,11 +75,8 @@ router.route("/sign-out").post(async (req: AnyRecord, res) => {
   });
 });
 
-router.route("/sign-up").post(async (req: AnyRecord, res) => {
-  withTryCatch(
-    "sign-up",
-    res
-  )(async () => {
+router.route("/sign-up").post(async (req: Request, res) => {
+  withTryCatch(req, res, async () => {
     const { email, password, name } = req.body;
 
     // Check if the email is already registered
@@ -95,7 +86,13 @@ router.route("/sign-up").post(async (req: AnyRecord, res) => {
     }
 
     // Create a new user
-    const newUser = new UserModel({ email, password, name });
+    const newUser = new UserModel({
+      email,
+      password,
+      name,
+      routeName: name,
+    });
+
     await newUser.save();
 
     const code = uuid().slice(0, 4).toUpperCase();
@@ -111,11 +108,8 @@ router.route("/sign-up").post(async (req: AnyRecord, res) => {
   });
 });
 
-router.route("/validate").post(async (req: AnyRecord, res) => {
-  withTryCatch(
-    "validate",
-    res
-  )(async () => {
+router.route("/validate").post(async (req: Request, res) => {
+  withTryCatch(req, res, async () => {
     const { email, code } = req.body;
 
     const user = await UserModel.findOne({ email });

@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "doc": "ts-node src/features/swagger/index.ts",
+    "doc": "ts-node ./swagger-autogen.ts",
     "start": "DOC=true nodemon src/index.ts",
     "build": "tsc",
     "serve": "node build/index.js"

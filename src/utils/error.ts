@@ -1,12 +1,18 @@
-import { Response } from "express";
+import { Response, Request } from "express";
 
-export const withTryCatch =
-  (process: string, res: Response) =>
-  async (callback: () => Promise<any> | any) => {
-    try {
-      await callback();
-    } catch (error) {
-      console.error("Error:", process, error);
-      res.status(500).json({ error: `Error: ${process}` });
-    }
-  };
+export const withTryCatch = async (
+  req: Request,
+  res: Response,
+  callback: () => Promise<any> | any
+) => {
+  const { originalUrl, method } = req;
+
+  const tag = `${method}-${originalUrl}`;
+
+  try {
+    await callback();
+  } catch (error) {
+    console.error("Error:", tag, error);
+    res.status(500).json({ error: `Error: ${tag}` });
+  }
+};
