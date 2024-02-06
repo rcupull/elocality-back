@@ -1,7 +1,8 @@
-import { Response, Request } from "express";
+import { Response } from "express";
+import { RequestObject } from "../types";
 
 export const withTryCatch = async (
-  req: Request,
+  req: RequestObject,
   res: Response,
   callback: () => Promise<any> | any
 ) => {

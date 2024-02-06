@@ -1,18 +1,35 @@
-import { Request, Response, NextFunction } from "express";
-import { validationResult } from "express-validator";
-import { AnyRecord } from "../types/general";
+import { Request, Response, NextFunction, RequestHandler } from "express";
+import {
+  validationResult,
+  query,
+  param,
+  body,
+  header,
+} from "express-validator";
+import { AnyRecord } from "../types";
 
-export const ExpressValidate = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    let error: AnyRecord = {};
-    //@ts-expect-error ignore
-    errors.array().map((err) => (error[err.param] = err.msg));
-    return res.status(422).json({ error });
-  }
-  next();
+export const getApiValidators = (...validators: Array<RequestHandler>) => {
+  return [
+    ...validators,
+    (req: Request, res: Response, next: NextFunction) => {
+      const errors = validationResult(req);
+
+      if (!errors.isEmpty()) {
+        let error: AnyRecord = {};
+        errors.array().forEach((err) => {
+          //@ts-expect-error ignore
+          error[`${req.method} ${req.originalUrl} ${err.path}`] = err.msg;
+        });
+        return res.status(422).json({ error });
+      }
+      next();
+    },
+  ];
+};
+
+export const validators = {
+  query,
+  param,
+  body,
+  header,
 };

@@ -2,17 +2,17 @@ import { Schema, model } from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { SECRET_ACCESS_TOKEN } from "../../../constants/auth";
-import { UserT } from "../../../types/auth";
-import { getRouteName } from "../../../utils/general";
+import { User } from "../types";
 
-const UserSchema = new Schema<UserT>({
+const UserSchema = new Schema<User>({
   name: { type: String, required: true },
-  routeName: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true, select: false },
+  passwordVerbose: { type: String, required: true, select: false },
   role: { type: String, enum: ["user", "admin"], default: "user" },
   createdAt: { type: Date, default: Date.now },
   validated: { type: Boolean, default: false },
+  businessIds: { type: [Schema.Types.ObjectId], ref: "Business" },
 });
 
 UserSchema.methods.generateAccessJWT = function () {
@@ -27,7 +27,7 @@ UserSchema.methods.generateAccessJWT = function () {
   );
 };
 
-const updateUserPassword = (user: UserT): Promise<void> => {
+const updateUserPassword = (user: User): Promise<void> => {
   return new Promise((resolve, reject) => {
     bcrypt.genSalt(10, (err, salt) => {
       if (err) return reject(err);
@@ -45,10 +45,6 @@ const updateUserPassword = (user: UserT): Promise<void> => {
 UserSchema.pre("save", async function (next) {
   const user = this;
 
-  if (user.isModified("name")) {
-    user.routeName = getRouteName(user.name);
-  }
-
   if (user.isModified("password")) {
     try {
       await updateUserPassword(user);
@@ -60,4 +56,4 @@ UserSchema.pre("save", async function (next) {
   next();
 });
 
-export const UserModel = model<UserT>("User", UserSchema, "users");
+export const UserModel = model<User>("User", UserSchema, "users");

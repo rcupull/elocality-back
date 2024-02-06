@@ -2,10 +2,10 @@ import { RequestHandler } from "express";
 import { withTryCatch } from "../utils/error";
 import jwt from "jsonwebtoken";
 import { SECRET_ACCESS_TOKEN } from "../constants/auth";
-import { UserRoleT } from "../types/auth";
 import { UserModel } from "../features/user/schemas";
+import { UserRole } from "../features/user/types";
 
-export const verifySession: RequestHandler = (req, res, next) => {
+export const verifyAuth: RequestHandler = (req, res, next) => {
   withTryCatch(req, res, async () => {
     let token = req.headers["token"]; // get the session cookie from request header
 
@@ -45,11 +45,11 @@ export const verifySession: RequestHandler = (req, res, next) => {
 };
 
 export const getVerifyRole =
-  (roleToCheck: UserRoleT): RequestHandler =>
+  (roleToCheck: UserRole): RequestHandler =>
   (req, res, next) => {
     withTryCatch(req, res, async () => {
       //@ts-expect-error
-      const user = req.user as UserT; // we have access to the user object from the request
+      const user = req.user as User; // we have access to the user object from the request
 
       const { role } = user; // extract the user role
       // check if user has no advance privileges
