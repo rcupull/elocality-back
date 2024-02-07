@@ -1,5 +1,6 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, PaginateModel } from "mongoose";
 import { Post } from "../types";
+import mongoosePaginate from "mongoose-paginate-v2";
 
 const PostSchema = new Schema<Post>({
   createdAt: { type: Date, default: Date.now },
@@ -16,4 +17,10 @@ const PostSchema = new Schema<Post>({
   price: { type: Number },
 });
 
-export const PostModel = model<Post>("Post", PostSchema, "posts");
+PostSchema.plugin(mongoosePaginate);
+
+export const PostModel = model<Post, PaginateModel<Post>>(
+  "Post",
+  PostSchema,
+  "posts"
+);

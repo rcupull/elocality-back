@@ -1,8 +1,9 @@
 import { Response } from "express";
-import { RequestObject } from "../types";
+import { RequestWithPagination } from "../middlewares/pagination";
+import { RequestWithUser } from "../middlewares/verify";
 
 export const withTryCatch = async (
-  req: RequestObject,
+  req: RequestWithUser & RequestWithPagination,
   res: Response,
   callback: () => Promise<any> | any
 ) => {

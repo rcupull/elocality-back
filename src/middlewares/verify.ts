@@ -1,9 +1,10 @@
-import { RequestHandler } from "express";
+import { Request, RequestHandler } from "express";
 import { withTryCatch } from "../utils/error";
 import jwt from "jsonwebtoken";
 import { SECRET_ACCESS_TOKEN } from "../constants/auth";
 import { UserModel } from "../features/user/schemas";
-import { UserRole } from "../features/user/types";
+import { User, UserRole } from "../features/user/types";
+import { AnyRecord } from "../types";
 
 export const verifyAuth: RequestHandler = (req, res, next) => {
   withTryCatch(req, res, async () => {
@@ -42,6 +43,16 @@ export const verifyAuth: RequestHandler = (req, res, next) => {
       next();
     });
   });
+};
+
+export type RequestWithUser<
+  P = AnyRecord,
+  ResBody = any,
+  ReqBody = any,
+  ReqQuery = AnyRecord,
+  Locals extends Record<string, any> = Record<string, any>
+> = Request<P, ResBody, ReqBody, ReqQuery, Locals> & {
+  user?: User;
 };
 
 export const getVerifyRole =

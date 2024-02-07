@@ -1,6 +1,7 @@
-import { Schema, model } from "mongoose";
+import { PaginateModel, Schema, model } from "mongoose";
 import { Business } from "../types";
 import { getRouteName } from "../../../utils/general";
+import mongoosePaginate from "mongoose-paginate-v2";
 
 const BusinessSchema = new Schema<Business>({
   name: { type: String, required: true },
@@ -8,6 +9,8 @@ const BusinessSchema = new Schema<Business>({
   category: { type: String, enum: ["food", "tool", "clothing", "service"] },
   createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
 });
+
+BusinessSchema.plugin(mongoosePaginate);
 
 BusinessSchema.pre("save", async function (next) {
   const business = this;
@@ -19,7 +22,7 @@ BusinessSchema.pre("save", async function (next) {
   next();
 });
 
-export const BusinessModel = model<Business>(
+export const BusinessModel = model<Business, PaginateModel<Business>>(
   "Business",
   BusinessSchema,
   "business"
