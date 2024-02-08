@@ -11,6 +11,8 @@ import {
   getApiValidators,
   validators,
 } from "../../../middlewares/express-validator";
+import { queryHandlesPosts } from "./handles";
+import { ServerResponse } from "http";
 
 export const router = Router();
 
@@ -24,15 +26,16 @@ router
 
       const { search, businessIds } = query;
 
-      const posts = await PostModel.paginate(
-        {
-          name: { $regex: new RegExp(search), $options: "i" },
-          // businessId: {  } //TODO
-        },
-        paginateOptions
-      );
+      const out = await queryHandlesPosts.getAll({
+        res,
+        paginateOptions,
+        businessIds,
+        search,
+      });
 
-      res.send(posts);
+      if (out instanceof ServerResponse) return;
+
+      res.send(out);
     });
   })
   .post(
@@ -68,7 +71,19 @@ router
         res.send(newPost.toJSON());
       });
     }
-  );
+  )
+  .delete(verifyAuth, (req: RequestWithUser, res) => {
+    withTryCatch(req, res, async () => {
+      const { body } = req;
+      const { businessIds, ids } = body;
+
+      const out = await queryHandlesPosts.deleteMany({ res, businessIds, ids });
+
+      if (out instanceof ServerResponse) return;
+
+      res.send();
+    });
+  });
 
 router
   .route("/posts/:postId")

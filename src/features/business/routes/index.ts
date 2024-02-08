@@ -7,11 +7,13 @@ import {
   getApiValidators,
   validators,
 } from "../../../middlewares/express-validator";
-import { PostModel } from "../../post/schemas";
 import {
   RequestWithPagination,
   pagination,
 } from "../../../middlewares/pagination";
+import { queryHandlesPosts } from "../../post/routes/handles";
+import { queryHandlesBusiness } from "./handles";
+import { ServerResponse } from "http";
 
 export const router = Router();
 
@@ -26,14 +28,15 @@ router
       withTryCatch(req, res, async () => {
         const { user, paginateOptions } = req;
 
-        const business = await BusinessModel.paginate(
-          {
-            createdBy: user?._id,
-          },
-          paginateOptions
-        );
+        const out = await queryHandlesBusiness.getAll({
+          res,
+          paginateOptions,
+          user,
+        });
 
-        res.send(business);
+        if (out instanceof ServerResponse) return;
+
+        res.send(out);
       });
     }
   )
@@ -41,18 +44,20 @@ router
     verifyAuth,
     ...getApiValidators(
       validators.body("name").notEmpty(),
-      validators.body("category").notEmpty()
+      validators.body("category").notEmpty(),
+      validators.body("routeName").notEmpty()
     ),
     (req: RequestWithUser<any, any, Business>, res) => {
       withTryCatch(req, res, async () => {
         const { body, user } = req;
 
-        const { name, category } = body;
+        const { name, category, routeName } = body;
 
         const newBusiness = new BusinessModel({
           category,
           createdBy: user?._id,
           name,
+          routeName,
         });
 
         await newBusiness.save();
@@ -95,6 +100,13 @@ router
       withTryCatch(req, res, async () => {
         const { user, params } = req;
         const { businessId } = params;
+
+        const out = await queryHandlesPosts.deleteMany({
+          businessIds: [businessId],
+          res,
+        });
+
+        if (out instanceof ServerResponse) return;
 
         await BusinessModel.deleteOne({
           _id: businessId,

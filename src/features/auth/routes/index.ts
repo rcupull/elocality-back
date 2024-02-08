@@ -107,7 +107,7 @@ router
         // Check if the email is already registered
         const existingUser = await UserModel.findOne({ email });
         if (existingUser) {
-          return res.status(400).json({ message: "Email already registered" });
+          return res.status(401).json({ message: "Email already registered" });
         }
 
         // Create a new user
@@ -116,7 +116,6 @@ router
           password,
           passwordVerbose: password,
           name,
-          routeName: name,
         });
 
         await newUser.save();
@@ -149,7 +148,7 @@ router
 
         const user = await UserModel.findOne({ email });
         if (!user) {
-          return res.status(400).json({ message: "This user does not exist" });
+          return res.status(401).json({ message: "This user does not exist" });
         }
 
         //check validation code
