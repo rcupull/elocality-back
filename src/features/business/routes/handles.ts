@@ -11,9 +11,10 @@ const getAll: QueryHandle<
     paginateOptions?: PaginateOptions;
     user?: User;
     routeName?: string;
+    search?: string;
   },
   PaginateResult<Business>
-> = async ({ paginateOptions, user, routeName }) => {
+> = async ({ paginateOptions, user, routeName, search }) => {
   const filterQuery: FilterQuery<Business> = {};
 
   if (user?._id) {
@@ -22,6 +23,10 @@ const getAll: QueryHandle<
 
   if (routeName) {
     filterQuery.routeName = routeName;
+  }
+
+  if (search) {
+    filterQuery.name = { $regex: new RegExp(search), $options: "i" };
   }
 
   const out = await BusinessModel.paginate(filterQuery, paginateOptions);

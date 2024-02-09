@@ -23,12 +23,13 @@ router
     withTryCatch(req, res, async () => {
       const { paginateOptions, query } = req;
 
-      const { routeName } = query;
+      const { routeName, search } = query;
 
       const out = await queryHandlesBusiness.getAll({
         res,
         paginateOptions,
         routeName,
+        search,
       });
 
       if (out instanceof ServerResponse) return;
@@ -48,13 +49,14 @@ router
       withTryCatch(req, res, async () => {
         const { user, paginateOptions, query } = req;
 
-        const { routeName } = query;
+        const { routeName, search } = query;
 
         const out = await queryHandlesBusiness.getAll({
           res,
           paginateOptions,
           user,
           routeName,
+          search,
         });
 
         if (out instanceof ServerResponse) return;
