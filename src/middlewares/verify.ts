@@ -55,21 +55,21 @@ export type RequestWithUser<
   user?: User;
 };
 
-export const getVerifyRole =
-  (roleToCheck: UserRole): RequestHandler =>
-  (req, res, next) => {
-    withTryCatch(req, res, async () => {
-      //@ts-expect-error
-      const user = req.user as User; // we have access to the user object from the request
+// export const getVerifyRole =
+//   (roleToCheck: UserRole): RequestHandler =>
+//   (req, res, next) => {
+//     withTryCatch(req, res, async () => {
+//       //@ts-expect-error
+//       const user = req.user as User; // we have access to the user object from the request
 
-      const { role } = user; // extract the user role
-      // check if user has no advance privileges
-      // return an unathorized response
-      if (role !== roleToCheck) {
-        return res.status(401).json({
-          message: "Wrong role. You are not authorized to do this action.",
-        });
-      }
-      next();
-    });
-  };
+//       const { role } = user; // extract the user role
+//       // check if user has no advance privileges
+//       // return an unathorized response
+//       if (role !== roleToCheck) {
+//         return res.status(401).json({
+//           message: "Wrong role. You are not authorized to do this action.",
+//         });
+//       }
+//       next();
+//     });
+//   };

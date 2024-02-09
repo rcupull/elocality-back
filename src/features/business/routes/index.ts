@@ -1,6 +1,5 @@
 import { Router } from "express";
 import { withTryCatch } from "../../../utils/error";
-import { BusinessModel } from "../schemas";
 import { RequestWithUser, verifyAuth } from "../../../middlewares/verify";
 import { Business } from "../types";
 import {
@@ -11,11 +10,32 @@ import {
   RequestWithPagination,
   pagination,
 } from "../../../middlewares/pagination";
-import { queryHandlesPosts } from "../../post/routes/handles";
 import { queryHandlesBusiness } from "./handles";
 import { ServerResponse } from "http";
 
 export const router = Router();
+
+/////////////////////////////////////////////////////////////////
+
+router
+  .route("/public/business")
+  .get(pagination, (req: RequestWithUser & RequestWithPagination, res) => {
+    withTryCatch(req, res, async () => {
+      const { paginateOptions, query } = req;
+
+      const { routeName } = query;
+
+      const out = await queryHandlesBusiness.getAll({
+        res,
+        paginateOptions,
+        routeName,
+      });
+
+      if (out instanceof ServerResponse) return;
+
+      res.send(out);
+    });
+  });
 
 /////////////////////////////////////////////////////////////////
 
@@ -26,12 +46,15 @@ router
     pagination,
     (req: RequestWithUser & RequestWithPagination, res) => {
       withTryCatch(req, res, async () => {
-        const { user, paginateOptions } = req;
+        const { user, paginateOptions, query } = req;
+
+        const { routeName } = query;
 
         const out = await queryHandlesBusiness.getAll({
           res,
           paginateOptions,
           user,
+          routeName,
         });
 
         if (out instanceof ServerResponse) return;
@@ -53,21 +76,44 @@ router
 
         const { name, category, routeName } = body;
 
-        const newBusiness = new BusinessModel({
+        const out = await queryHandlesBusiness.addOne({
           category,
-          createdBy: user?._id,
           name,
           routeName,
+          user,
+          res,
         });
 
-        await newBusiness.save();
+        if (out instanceof ServerResponse) return;
 
-        res.send(newBusiness);
+        res.send(out);
       });
     }
   );
 
 /////////////////////////////////////////////////////////////////
+
+router
+  .route("/public/business/:businessId")
+  .get(
+    ...getApiValidators(validators.param("businessId").notEmpty()),
+    (req: RequestWithUser, res) => {
+      withTryCatch(req, res, async () => {
+        const { params, query } = req;
+        const { businessId } = params;
+
+        const out = await queryHandlesBusiness.findOne({
+          res,
+          businessId,
+        });
+
+        if (out instanceof ServerResponse) return;
+
+        res.send(out);
+      });
+    }
+  );
+
 router
   .route("/business/:businessId")
   .get(
@@ -78,18 +124,15 @@ router
         const { user, params, query } = req;
         const { businessId } = params;
 
-        const business = await BusinessModel.findOne({
-          createdBy: user?._id,
-          _id: businessId,
+        const out = await queryHandlesBusiness.findOne({
+          user,
+          res,
+          businessId,
         });
 
-        if (!business) {
-          return res.status(404).json({
-            message: "Business not found",
-          });
-        }
+        if (out instanceof ServerResponse) return;
 
-        res.send(business);
+        res.send(out);
       });
     }
   )
@@ -101,16 +144,13 @@ router
         const { user, params } = req;
         const { businessId } = params;
 
-        const out = await queryHandlesPosts.deleteMany({
-          businessIds: [businessId],
+        const out = await queryHandlesBusiness.deleteOne({
           res,
+          businessId,
+          user,
         });
 
         if (out instanceof ServerResponse) return;
-
-        await BusinessModel.deleteOne({
-          _id: businessId,
-        });
 
         res.send();
       });

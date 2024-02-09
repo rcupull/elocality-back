@@ -1,9 +1,10 @@
 import { Schema, model, PaginateModel } from "mongoose";
 import { Post } from "../types";
 import mongoosePaginate from "mongoose-paginate-v2";
+import { createdAtSchemaDefinition } from "../../../utils/schemas";
 
 const PostSchema = new Schema<Post>({
-  createdAt: { type: Date, default: Date.now },
+  ...createdAtSchemaDefinition,
   businessId: { type: Schema.Types.ObjectId, ref: "Business", required: true },
   amountAvailable: { type: Number },
   currency: { type: String, enum: ["CUP", "MLC", "USD"] },

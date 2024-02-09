@@ -6,7 +6,7 @@ export type AnyRecord = Record<string, any>;
 
 export interface BaseIdentity {
   _id: string;
-  createdAt: Date;
+  createdAt: string;
 }
 
 export type QueryHandle<Args extends AnyRecord = AnyRecord, R = void> = (

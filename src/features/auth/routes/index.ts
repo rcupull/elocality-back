@@ -139,8 +139,8 @@ router
   .route("/auth/validate")
   .post(
     ...getApiValidators(
-      validators.query("email").notEmpty().isEmail(),
-      validators.query("code").notEmpty()
+      validators.body("email").notEmpty().isEmail(),
+      validators.body("code").notEmpty()
     ),
     async (req: Request, res) => {
       withTryCatch(req, res, async () => {

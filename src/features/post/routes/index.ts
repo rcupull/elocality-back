@@ -17,10 +17,30 @@ import { ServerResponse } from "http";
 export const router = Router();
 
 /////////////////////////////////////////////////////////////////
+router
+  .route("/public/posts")
+  .get(pagination, (req: RequestWithPagination, res) => {
+    withTryCatch(req, res, async () => {
+      const { query, paginateOptions } = req;
+
+      const { search, businessIds } = query;
+
+      const out = await queryHandlesPosts.getAll({
+        res,
+        paginateOptions,
+        businessIds,
+        search,
+      });
+
+      if (out instanceof ServerResponse) return;
+
+      res.send(out);
+    });
+  });
 
 router
   .route("/posts")
-  .get(pagination, (req: RequestWithPagination, res) => {
+  .get(verifyAuth, pagination, (req: RequestWithPagination, res) => {
     withTryCatch(req, res, async () => {
       const { query, paginateOptions } = req;
 
@@ -84,6 +104,32 @@ router
       res.send();
     });
   });
+
+///////////////////////////////////////////////////////////////////////////
+
+router
+  .route("/public/posts/:postId")
+  .get(
+    ...getApiValidators(validators.param("postId").notEmpty()),
+    (req: RequestWithUser, res) => {
+      withTryCatch(req, res, async () => {
+        const { params } = req;
+        const { postId } = params;
+
+        const post = await PostModel.findOne({
+          _id: postId,
+        });
+
+        if (!post) {
+          return res.status(404).json({
+            message: "post not found",
+          });
+        }
+
+        res.send(post);
+      });
+    }
+  );
 
 router
   .route("/posts/:postId")

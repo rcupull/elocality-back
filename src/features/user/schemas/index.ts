@@ -3,14 +3,15 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { SECRET_ACCESS_TOKEN } from "../../../constants/auth";
 import { User } from "../types";
+import { createdAtSchemaDefinition } from "../../../utils/schemas";
 
 const UserSchema = new Schema<User>({
+  ...createdAtSchemaDefinition,
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true, select: false },
   passwordVerbose: { type: String, required: true, select: false },
   role: { type: String, enum: ["user", "admin"], default: "user" },
-  createdAt: { type: Date, default: Date.now },
   validated: { type: Boolean, default: false },
   businessIds: { type: [Schema.Types.ObjectId], ref: "Business" },
 });
