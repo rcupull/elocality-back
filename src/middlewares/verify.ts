@@ -5,12 +5,11 @@ import { SECRET_ACCESS_TOKEN } from "../constants/auth";
 import { UserModel } from "../features/user/schemas";
 import { User, UserRole } from "../features/user/types";
 import { AnyRecord } from "../types";
-import { queryHandlesBusiness } from "../features/business/routes/handles";
-import { ServerResponse } from "http";
 
-export const verifyAuth: RequestHandler = (req, res, next) => {
+export const verifyUser: RequestHandler = (req, res, next) => {
   withTryCatch(req, res, async () => {
     let token = req.headers["token"]; // get the session cookie from request header
+    let userIdInParams = req.params["userId"]; // get the session cookie from request header
 
     if (!token) {
       return res.sendStatus(401); // if there is no cookie from request header, send an unauthorized response.
@@ -32,16 +31,20 @@ export const verifyAuth: RequestHandler = (req, res, next) => {
 
       //@ts-expect-error
       const { id } = decoded; // get user id from the decoded token
-      const user = await UserModel.findById(id); // find user by that `id`
+      const autehticatedUser = await UserModel.findById(id); // find user by that `id`
 
-      if (!user) {
+      if (!autehticatedUser) {
         return res.status(401).json({ message: "The user does not exist" });
       }
 
-      const { password, ...data } = user?.toJSON(); // return user object without the password
-
-      //@ts-expect-error
-      req["user"] = data; // put the data object into req.user
+      if (
+        autehticatedUser.role === "user" &&
+        autehticatedUser._id.toString() !== userIdInParams
+      ) {
+        return res
+          .status(401)
+          .json({ message: "This user has not access to this information" });
+      }
       next();
     });
   });
@@ -57,39 +60,39 @@ export type RequestWithUser<
   user: User;
 };
 
-export const verifyBussiness = (
-  req: RequestWithUser,
-  res: Response,
-  next: NextFunction
-) => {
-  withTryCatch(req, res, async () => {
-    const user = req.user as User | undefined;
-    const businessId = req.params.businessId as string | undefined;
+// export const verifyBussiness = (
+//   req: RequestWithUser,
+//   res: Response,
+//   next: NextFunction
+// ) => {
+//   withTryCatch(req, res, async () => {
+//     const user = req.user as User | undefined;
+//     const businessId = req.params.businessId as string | undefined;
 
-    if (!businessId) {
-      return res
-        .sendStatus(404)
-        .json({ message: "The businessId does not exist" });
-    }
+//     if (!businessId) {
+//       return res
+//         .sendStatus(404)
+//         .json({ message: "The businessId does not exist" });
+//     }
 
-    if (!user) {
-      return res.sendStatus(404).json({ message: "The user does not exist" });
-    }
+//     if (!user) {
+//       return res.sendStatus(404).json({ message: "The user does not exist" });
+//     }
 
-    const out = await queryHandlesBusiness.findOne({
-      businessId,
-      user,
-      res,
-    });
+//     const out = await queryHandlesBusiness.findOne({
+//       businessId,
+//       user,
+//       res,
+//     });
 
-    if (out instanceof ServerResponse) return;
+//     if (out instanceof ServerResponse) return;
 
-    //@ts-expect-error
-    req["business"] = out;
+//     //@ts-expect-error
+//     req["business"] = out;
 
-    next();
-  });
-};
+//     next();
+//   });
+// };
 
 // export const getVerifyRole =
 //   (roleToCheck: UserRole): RequestHandler =>

@@ -10,16 +10,16 @@ import { UserModel } from "../../user/schemas";
 const getAll: QueryHandle<
   {
     paginateOptions?: PaginateOptions;
-    user?: User;
+    userId?: string;
     routeName?: string;
     search?: string;
   },
   PaginateResult<Business>
-> = async ({ paginateOptions, user, routeName, search }) => {
+> = async ({ paginateOptions, userId, routeName, search }) => {
   const filterQuery: FilterQuery<Business> = {};
 
-  if (user?._id) {
-    filterQuery.createdBy = user?._id;
+  if (userId) {
+    filterQuery.createdBy = userId;
   }
 
   if (routeName) {
@@ -40,10 +40,10 @@ const addOne: QueryHandle<
     category: BusinessCategory;
     name: string;
     routeName: string;
-    user: User;
+    userId: string;
   },
   Business
-> = async ({ category, user, routeName, name, res }) => {
+> = async ({ category, userId, routeName, name, res }) => {
   const routeNameExists = await BusinessModel.findOne({ routeName });
   if (routeNameExists) {
     return res.status(400).json({
@@ -53,7 +53,7 @@ const addOne: QueryHandle<
 
   const out = new BusinessModel({
     category,
-    createdBy: user?._id,
+    createdBy: userId,
     name,
     routeName,
   });
@@ -66,16 +66,16 @@ const addOne: QueryHandle<
 const findOne: QueryHandle<
   {
     businessId: string;
-    user?: User;
+    userId?: string;
   },
   Business
-> = async ({ businessId, user, res }) => {
+> = async ({ businessId, userId, res }) => {
   const filterQuery: FilterQuery<Business> = {
     _id: businessId,
   };
 
-  if (user?._id) {
-    filterQuery.createdBy = user?._id;
+  if (userId) {
+    filterQuery.createdBy = userId;
   }
 
   const out = await BusinessModel.findOne(filterQuery);
@@ -91,17 +91,17 @@ const findOne: QueryHandle<
 
 const deleteOne: QueryHandle<{
   businessId: string;
-  user: User;
-}> = async ({ businessId, res, user }) => {
+  userId: string;
+}> = async ({ businessId, res, userId }) => {
   await BusinessModel.deleteOne({
     _id: businessId,
-    createdBy: user._id,
+    createdBy: userId,
   });
 
   const out = await queryHandlesPosts.deleteMany({
     businessIds: [businessId],
     res,
-    user,
+    userId,
   });
 
   return out;

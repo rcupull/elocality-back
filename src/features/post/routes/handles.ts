@@ -53,8 +53,8 @@ const getOne: QueryHandle<
 const deleteMany: QueryHandle<{
   businessIds?: Array<string>;
   ids?: Array<string>;
-  user: User;
-}> = async ({ businessIds, ids, res, user }) => {
+  userId: string;
+}> = async ({ businessIds, ids, res, userId }) => {
   if (!businessIds?.length && !ids?.length) {
     return res.status(404).json({
       message: "businessId or ids are required",
@@ -71,23 +71,21 @@ const deleteMany: QueryHandle<{
     filterQuery._id = { $in: ids };
   }
 
-  filterQuery.createdAt = user._id;
+  filterQuery.createdAt = userId;
 
-  const out = await PostModel.deleteMany(filterQuery);
-
-  return out;
+  await PostModel.deleteMany(filterQuery);
 };
 
 const addOne: QueryHandle<
-  Pick<
-    Post,
-    | "amountAvailable"
-    | "businessId"
-    | "currency"
-    | "description"
-    | "name"
-    | "price"
-  > & { user?: User },
+  {
+    businessId: string;
+    description: string;
+    name: string;
+    price?: number;
+    currency?: string;
+    amountAvailable?: number;
+    userId: string;
+  },
   Post
 > = async ({
   businessId,
@@ -96,7 +94,7 @@ const addOne: QueryHandle<
   amountAvailable,
   currency,
   price,
-  user,
+  userId,
 }) => {
   const newPost = new PostModel({
     amountAvailable,
@@ -105,7 +103,7 @@ const addOne: QueryHandle<
     description,
     name,
     price,
-    createdBy: user?._id,
+    createdBy: userId,
   });
 
   await newPost.save();

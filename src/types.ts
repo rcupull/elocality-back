@@ -12,4 +12,4 @@ export interface BaseIdentity {
 
 export type QueryHandle<Args extends AnyRecord = AnyRecord, R = void> = (
   args: Args & { res: Response }
-) => Promise<R | ServerResponse | DeleteResult>;
+) => Promise<R | ServerResponse>;

@@ -10,6 +10,8 @@ import {
   getApiValidators,
   validators,
 } from "../../../middlewares/express-validator";
+import { queryHandlesUser } from "../../user/routes/handles";
+import { ServerResponse } from "http";
 
 export const router = Router();
 /////////////////////////////////////////////////////////////////
@@ -104,28 +106,22 @@ router
       withTryCatch(req, res, async () => {
         const { email, password, name } = req.body;
 
-        // Check if the email is already registered
-        const existingUser = await UserModel.findOne({ email });
-        if (existingUser) {
-          return res.status(401).json({ message: "Email already registered" });
-        }
-
-        // Create a new user
-        const newUser = new UserModel({
+        const newUser = await queryHandlesUser.addOne({
           email,
-          password,
-          passwordVerbose: password,
           name,
+          password,
+          res,
         });
 
-        await newUser.save();
+        if (newUser instanceof ServerResponse) return;
 
+        // send validation code by email
         const code = uuid().slice(0, 4).toUpperCase();
 
         await sendEmail({ email, code });
         const newValidationCode = new ValidationCodeModel({
           code,
-          userId: newUser.id,
+          userId: newUser._id,
         });
         await newValidationCode.save();
 
