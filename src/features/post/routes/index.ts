@@ -40,24 +40,6 @@ router
 
 router
   .route("/posts")
-  .get(verifyAuth, pagination, (req: RequestWithPagination, res) => {
-    withTryCatch(req, res, async () => {
-      const { query, paginateOptions } = req;
-
-      const { search, businessIds } = query;
-
-      const out = await queryHandlesPosts.getAll({
-        res,
-        paginateOptions,
-        businessIds,
-        search,
-      });
-
-      if (out instanceof ServerResponse) return;
-
-      res.send(out);
-    });
-  })
   .post(
     verifyAuth,
     ...getApiValidators(
@@ -65,9 +47,10 @@ router
       validators.body("name").notEmpty(),
       validators.body("description").notEmpty()
     ),
-    (req: RequestWithUser, res) => {
+    (req, res) => {
       withTryCatch(req, res, async () => {
-        const { body } = req;
+        const { body, user } = req as unknown as RequestWithUser;
+
         const {
           amountAvailable,
           currency,
@@ -77,31 +60,38 @@ router
           businessId,
         } = body;
 
-        const newPost = new PostModel({
+        const out = await queryHandlesPosts.addOne({
+          res,
           amountAvailable,
           businessId,
           currency,
           description,
           name,
           price,
+          user,
         });
 
-        await newPost.save();
+        if (out instanceof ServerResponse) return;
 
-        res.send(newPost.toJSON());
+        res.send(out);
       });
     }
   )
-  .delete(verifyAuth, (req: RequestWithUser, res) => {
+  .delete(verifyAuth, (req, res) => {
     withTryCatch(req, res, async () => {
-      const { body } = req;
+      const { body, user } = req as unknown as RequestWithUser;
       const { businessIds, ids } = body;
 
-      const out = await queryHandlesPosts.deleteMany({ res, businessIds, ids });
+      const out = await queryHandlesPosts.deleteMany({
+        res,
+        businessIds,
+        ids,
+        user,
+      });
 
       if (out instanceof ServerResponse) return;
 
-      res.send();
+      res.send(out);
     });
   });
 
@@ -111,64 +101,39 @@ router
   .route("/public/posts/:postId")
   .get(
     ...getApiValidators(validators.param("postId").notEmpty()),
-    (req: RequestWithUser, res) => {
+    (req, res) => {
       withTryCatch(req, res, async () => {
         const { params } = req;
         const { postId } = params;
 
-        const post = await PostModel.findOne({
-          _id: postId,
-        });
+        const out = await queryHandlesPosts.getOne({ res, postId });
 
-        if (!post) {
-          return res.status(404).json({
-            message: "post not found",
-          });
-        }
+        if (out instanceof ServerResponse) return;
 
-        res.send(post);
+        res.send(out);
       });
     }
   );
 
 router
   .route("/posts/:postId")
-  .get(
-    verifyAuth,
-    ...getApiValidators(validators.param("postId").notEmpty()),
-    (req: RequestWithUser, res) => {
-      withTryCatch(req, res, async () => {
-        const { user, params } = req;
-        const { postId } = params;
-
-        const post = await PostModel.findOne({
-          createdBy: user?._id,
-          _id: postId,
-        });
-
-        if (!post) {
-          return res.status(404).json({
-            message: "post not found",
-          });
-        }
-
-        res.send(post);
-      });
-    }
-  )
   .delete(
     verifyAuth,
     ...getApiValidators(validators.param("postId").notEmpty()),
-    (req: RequestWithUser, res) => {
+    (req, res) => {
       withTryCatch(req, res, async () => {
-        const { user, params } = req;
+        const { user, params } = req as unknown as RequestWithUser;
         const { postId } = params;
 
-        await PostModel.deleteOne({
-          _id: postId,
+        const out = await queryHandlesPosts.deleteMany({
+          res,
+          ids: [postId],
+          user,
         });
 
-        res.send();
+        if (out instanceof ServerResponse) return;
+
+        res.send(out);
       });
     }
   );

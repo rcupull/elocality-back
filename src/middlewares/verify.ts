@@ -1,10 +1,12 @@
-import { Request, RequestHandler } from "express";
+import { NextFunction, Request, RequestHandler, Response } from "express";
 import { withTryCatch } from "../utils/error";
 import jwt from "jsonwebtoken";
 import { SECRET_ACCESS_TOKEN } from "../constants/auth";
 import { UserModel } from "../features/user/schemas";
 import { User, UserRole } from "../features/user/types";
 import { AnyRecord } from "../types";
+import { queryHandlesBusiness } from "../features/business/routes/handles";
+import { ServerResponse } from "http";
 
 export const verifyAuth: RequestHandler = (req, res, next) => {
   withTryCatch(req, res, async () => {
@@ -52,7 +54,41 @@ export type RequestWithUser<
   ReqQuery = AnyRecord,
   Locals extends Record<string, any> = Record<string, any>
 > = Request<P, ResBody, ReqBody, ReqQuery, Locals> & {
-  user?: User;
+  user: User;
+};
+
+export const verifyBussiness = (
+  req: RequestWithUser,
+  res: Response,
+  next: NextFunction
+) => {
+  withTryCatch(req, res, async () => {
+    const user = req.user as User | undefined;
+    const businessId = req.params.businessId as string | undefined;
+
+    if (!businessId) {
+      return res
+        .sendStatus(404)
+        .json({ message: "The businessId does not exist" });
+    }
+
+    if (!user) {
+      return res.sendStatus(404).json({ message: "The user does not exist" });
+    }
+
+    const out = await queryHandlesBusiness.findOne({
+      businessId,
+      user,
+      res,
+    });
+
+    if (out instanceof ServerResponse) return;
+
+    //@ts-expect-error
+    req["business"] = out;
+
+    next();
+  });
 };
 
 // export const getVerifyRole =

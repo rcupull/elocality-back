@@ -9,6 +9,7 @@ const PostSchema = new Schema<Post>({
   amountAvailable: { type: Number },
   currency: { type: String, enum: ["CUP", "MLC", "USD"] },
   description: { type: String, required: true },
+  createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
   images: [
     {
       url: { type: String },

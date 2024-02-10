@@ -17,17 +17,40 @@ export const router = Router();
 
 /////////////////////////////////////////////////////////////////
 
+router.route("/public/business").get(pagination, (req, res) => {
+  withTryCatch(req, res, async () => {
+    const { paginateOptions, query } = req as unknown as RequestWithPagination;
+
+    const { routeName, search } = query;
+
+    const out = await queryHandlesBusiness.getAll({
+      res,
+      paginateOptions,
+      routeName,
+      search,
+    });
+
+    if (out instanceof ServerResponse) return;
+
+    res.send(out);
+  });
+});
+
+/////////////////////////////////////////////////////////////////
+
 router
-  .route("/public/business")
-  .get(pagination, (req: RequestWithUser & RequestWithPagination, res) => {
+  .route("/business")
+  .get(verifyAuth, pagination, (req, res) => {
     withTryCatch(req, res, async () => {
-      const { paginateOptions, query } = req;
+      const { user, paginateOptions, query } =
+        req as unknown as RequestWithUser & RequestWithPagination;
 
       const { routeName, search } = query;
 
       const out = await queryHandlesBusiness.getAll({
         res,
         paginateOptions,
+        user,
         routeName,
         search,
       });
@@ -36,35 +59,7 @@ router
 
       res.send(out);
     });
-  });
-
-/////////////////////////////////////////////////////////////////
-
-router
-  .route("/business")
-  .get(
-    verifyAuth,
-    pagination,
-    (req: RequestWithUser & RequestWithPagination, res) => {
-      withTryCatch(req, res, async () => {
-        const { user, paginateOptions, query } = req;
-
-        const { routeName, search } = query;
-
-        const out = await queryHandlesBusiness.getAll({
-          res,
-          paginateOptions,
-          user,
-          routeName,
-          search,
-        });
-
-        if (out instanceof ServerResponse) return;
-
-        res.send(out);
-      });
-    }
-  )
+  })
   .post(
     verifyAuth,
     ...getApiValidators(
@@ -72,9 +67,13 @@ router
       validators.body("category").notEmpty(),
       validators.body("routeName").notEmpty()
     ),
-    (req: RequestWithUser<any, any, Business>, res) => {
+    (req, res) => {
       withTryCatch(req, res, async () => {
-        const { body, user } = req;
+        const { body, user } = req as unknown as RequestWithUser<
+          any,
+          any,
+          Business
+        >;
 
         const { name, category, routeName } = body;
 
@@ -99,9 +98,9 @@ router
   .route("/public/business/:businessId")
   .get(
     ...getApiValidators(validators.param("businessId").notEmpty()),
-    (req: RequestWithUser, res) => {
+    (req, res) => {
       withTryCatch(req, res, async () => {
-        const { params, query } = req;
+        const { params, query } = req as unknown as RequestWithUser;
         const { businessId } = params;
 
         const out = await queryHandlesBusiness.findOne({
@@ -121,9 +120,9 @@ router
   .get(
     verifyAuth,
     ...getApiValidators(validators.param("businessId").notEmpty()),
-    (req: RequestWithUser, res) => {
+    (req, res) => {
       withTryCatch(req, res, async () => {
-        const { user, params, query } = req;
+        const { user, params, query } = req as unknown as RequestWithUser;
         const { businessId } = params;
 
         const out = await queryHandlesBusiness.findOne({
@@ -141,9 +140,10 @@ router
   .delete(
     verifyAuth,
     ...getApiValidators(validators.param("businessId").notEmpty()),
-    (req: RequestWithUser, res) => {
+    (req, res) => {
       withTryCatch(req, res, async () => {
-        const { user, params } = req;
+        const { user, params } = req as unknown as RequestWithUser;
+
         const { businessId } = params;
 
         const out = await queryHandlesBusiness.deleteOne({

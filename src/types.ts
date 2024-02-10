@@ -1,11 +1,12 @@
 import { Response } from "express";
 import { ServerResponse } from "http";
 import { DeleteResult } from "mongodb";
+import { Schema } from "mongoose";
 
 export type AnyRecord = Record<string, any>;
 
 export interface BaseIdentity {
-  _id: string;
+  _id: Schema.Types.ObjectId;
   createdAt: string;
 }
 

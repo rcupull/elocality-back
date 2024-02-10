@@ -13,7 +13,6 @@ const UserSchema = new Schema<User>({
   passwordVerbose: { type: String, required: true, select: false },
   role: { type: String, enum: ["user", "admin"], default: "user" },
   validated: { type: Boolean, default: false },
-  businessIds: { type: [Schema.Types.ObjectId], ref: "Business" },
 });
 
 UserSchema.methods.generateAccessJWT = function () {

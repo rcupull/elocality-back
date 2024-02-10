@@ -11,5 +11,4 @@ export interface User extends BaseIdentity {
   role: UserRole;
   validated: boolean;
   generateAccessJWT: () => string;
-  businessIds?: Array<Schema.Types.ObjectId>;
 }

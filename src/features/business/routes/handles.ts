@@ -1,10 +1,11 @@
-import { FilterQuery, PaginateOptions, PaginateResult, Schema } from "mongoose";
+import { FilterQuery, PaginateOptions, PaginateResult } from "mongoose";
 import { QueryHandle } from "../../../types";
 import { Business, BusinessCategory } from "../types";
 import { BusinessModel } from "../schemas";
 import { User } from "../../user/types";
 import { queryHandlesPosts } from "../../post/routes/handles";
 import { ServerResponse } from "http";
+import { UserModel } from "../../user/schemas";
 
 const getAll: QueryHandle<
   {
@@ -39,7 +40,7 @@ const addOne: QueryHandle<
     category: BusinessCategory;
     name: string;
     routeName: string;
-    user?: User;
+    user: User;
   },
   Business
 > = async ({ category, user, routeName, name, res }) => {
@@ -69,10 +70,15 @@ const findOne: QueryHandle<
   },
   Business
 > = async ({ businessId, user, res }) => {
-  const out = await BusinessModel.findOne({
-    createdBy: user?._id,
+  const filterQuery: FilterQuery<Business> = {
     _id: businessId,
-  });
+  };
+
+  if (user?._id) {
+    filterQuery.createdBy = user?._id;
+  }
+
+  const out = await BusinessModel.findOne(filterQuery);
 
   if (!out) {
     return res.status(404).json({
@@ -85,19 +91,20 @@ const findOne: QueryHandle<
 
 const deleteOne: QueryHandle<{
   businessId: string;
-  user?: User;
+  user: User;
 }> = async ({ businessId, res, user }) => {
   await BusinessModel.deleteOne({
     _id: businessId,
-    createdBy: user?._id,
+    createdBy: user._id,
   });
 
   const out = await queryHandlesPosts.deleteMany({
     businessIds: [businessId],
     res,
+    user,
   });
 
-  if (out instanceof ServerResponse) return;
+  return out;
 };
 
 export const queryHandlesBusiness = {
