@@ -76,22 +76,22 @@ router
   );
 
 router
-  .route("/user/:userId/business/:businessId")
+  .route("/user/:userId/business/:routeName")
   .delete(
     verifyUser,
     ...getApiValidators(
       validators.param("userId").notEmpty(),
-      validators.param("businessId").notEmpty()
+      validators.param("routeName").notEmpty()
     ),
     (req, res) => {
       withTryCatch(req, res, async () => {
         const { params } = req;
 
-        const { businessId, userId } = params;
+        const { routeName, userId } = params;
 
         const out = await queryHandlesBusiness.deleteOne({
           res,
-          businessId,
+          routeName,
           userId,
         });
 
@@ -108,7 +108,7 @@ router
     verifyUser,
     ...getApiValidators(
       validators.param("userId").notEmpty(),
-      validators.body("businessId").notEmpty(),
+      validators.body("routeName").notEmpty(),
       validators.body("name").notEmpty(),
       validators.body("description").notEmpty()
     ),
@@ -124,13 +124,13 @@ router
           description,
           name,
           price,
-          businessId,
+          routeName,
         } = body;
 
         const out = await queryHandlesPosts.addOne({
           res,
           amountAvailable,
-          businessId,
+          routeName,
           currency,
           description,
           name,

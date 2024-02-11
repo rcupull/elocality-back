@@ -2,10 +2,7 @@ import { FilterQuery, PaginateOptions, PaginateResult } from "mongoose";
 import { QueryHandle } from "../../../types";
 import { Business, BusinessCategory } from "../types";
 import { BusinessModel } from "../schemas";
-import { User } from "../../user/types";
 import { queryHandlesPosts } from "../../post/routes/handles";
-import { ServerResponse } from "http";
-import { UserModel } from "../../user/schemas";
 
 const getAll: QueryHandle<
   {
@@ -65,13 +62,13 @@ const addOne: QueryHandle<
 
 const findOne: QueryHandle<
   {
-    businessId: string;
+    routeName: string;
     userId?: string;
   },
   Business
-> = async ({ businessId, userId, res }) => {
+> = async ({ routeName, userId, res }) => {
   const filterQuery: FilterQuery<Business> = {
-    _id: businessId,
+    routeName,
   };
 
   if (userId) {
@@ -90,16 +87,16 @@ const findOne: QueryHandle<
 };
 
 const deleteOne: QueryHandle<{
-  businessId: string;
+  routeName: string;
   userId: string;
-}> = async ({ businessId, res, userId }) => {
+}> = async ({ routeName, res, userId }) => {
   await BusinessModel.deleteOne({
-    _id: businessId,
+    routeName,
     createdBy: userId,
   });
 
   const out = await queryHandlesPosts.deleteMany({
-    businessIds: [businessId],
+    routeNames: [routeName],
     res,
     userId,
   });

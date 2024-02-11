@@ -19,12 +19,12 @@ router.route("/posts").get(pagination, (req, res) => {
   withTryCatch(req, res, async () => {
     const { query, paginateOptions } = req as unknown as RequestWithPagination;
 
-    const { search, businessIds } = query;
+    const { search, routeNames } = query;
 
     const out = await queryHandlesPosts.getAll({
       res,
       paginateOptions,
-      businessIds,
+      routeNames,
       search,
     });
 

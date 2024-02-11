@@ -38,17 +38,17 @@ router.route("/business").get(pagination, (req, res) => {
 /////////////////////////////////////////////////////////////////
 
 router
-  .route("/business/:businessId")
+  .route("/business/:routeName")
   .get(
-    ...getApiValidators(validators.param("businessId").notEmpty()),
+    ...getApiValidators(validators.param("routeName").notEmpty()),
     (req, res) => {
       withTryCatch(req, res, async () => {
         const { params } = req as unknown as RequestWithUser;
-        const { businessId } = params;
+        const { routeName } = params;
 
         const out = await queryHandlesBusiness.findOne({
           res,
-          businessId,
+          routeName,
         });
 
         if (out instanceof ServerResponse) return;

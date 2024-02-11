@@ -5,7 +5,7 @@ import { createdAtSchemaDefinition } from "../../../utils/schemas";
 
 const PostSchema = new Schema<Post>({
   ...createdAtSchemaDefinition,
-  businessId: { type: Schema.Types.ObjectId, ref: "Business", required: true },
+  routeName: { type: String, required: true },
   amountAvailable: { type: Number },
   currency: { type: String, enum: ["CUP", "MLC", "USD"] },
   description: { type: String, required: true },

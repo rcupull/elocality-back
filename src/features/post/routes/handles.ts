@@ -2,24 +2,23 @@ import { FilterQuery, PaginateOptions, PaginateResult } from "mongoose";
 import { QueryHandle } from "../../../types";
 import { PostModel } from "../schemas";
 import { Post } from "../types";
-import { User } from "../../user/types";
 
 const getAll: QueryHandle<
   {
     paginateOptions?: PaginateOptions;
-    businessIds?: Array<string>;
+    routeNames?: Array<string>;
     search?: string;
   },
   PaginateResult<Post>
-> = async ({ paginateOptions, businessIds, search, res }) => {
+> = async ({ paginateOptions, routeNames, search, res }) => {
   const filterQuery: FilterQuery<Post> = {};
 
   if (search) {
     filterQuery.name = { $regex: new RegExp(search), $options: "i" };
   }
 
-  if (businessIds?.length) {
-    filterQuery.businessId = { $in: businessIds };
+  if (routeNames?.length) {
+    filterQuery.routeName = { $in: routeNames };
   }
 
   const out = await PostModel.paginate(filterQuery, paginateOptions);
@@ -51,11 +50,11 @@ const getOne: QueryHandle<
 };
 
 const deleteMany: QueryHandle<{
-  businessIds?: Array<string>;
+  routeNames?: Array<string>;
   ids?: Array<string>;
   userId: string;
-}> = async ({ businessIds, ids, res, userId }) => {
-  if (!businessIds?.length && !ids?.length) {
+}> = async ({ routeNames, ids, res, userId }) => {
+  if (!routeNames?.length && !ids?.length) {
     return res.status(404).json({
       message: "businessId or ids are required",
     });
@@ -63,22 +62,22 @@ const deleteMany: QueryHandle<{
 
   const filterQuery: FilterQuery<Post> = {};
 
-  if (businessIds?.length) {
-    filterQuery.businessId = { $in: businessIds };
+  if (routeNames?.length) {
+    filterQuery.routeName = { $in: routeNames };
   }
 
   if (ids?.length) {
     filterQuery._id = { $in: ids };
   }
 
-  filterQuery.createdAt = userId;
+  filterQuery.createdBy = userId;
 
   await PostModel.deleteMany(filterQuery);
 };
 
 const addOne: QueryHandle<
   {
-    businessId: string;
+    routeName: string;
     description: string;
     name: string;
     price?: number;
@@ -88,7 +87,7 @@ const addOne: QueryHandle<
   },
   Post
 > = async ({
-  businessId,
+  routeName,
   description,
   name,
   amountAvailable,
@@ -98,7 +97,7 @@ const addOne: QueryHandle<
 }) => {
   const newPost = new PostModel({
     amountAvailable,
-    businessId,
+    routeName,
     currency,
     description,
     name,

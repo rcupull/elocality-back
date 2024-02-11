@@ -9,7 +9,7 @@ export interface PostImage {
 
 export interface Post extends BaseIdentity {
   images?: Array<PostImage>;
-  businessId: Schema.Types.ObjectId;
+  routeName: string; // routeName from business
   createdBy: Schema.Types.ObjectId;
   description: string;
   name: string;
