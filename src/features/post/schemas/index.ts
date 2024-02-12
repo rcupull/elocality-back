@@ -10,6 +10,7 @@ const PostSchema = new Schema<Post>({
   currency: { type: String, enum: ["CUP", "MLC", "USD"] },
   description: { type: String, required: true },
   details: { type: String },
+  hidden: { type: Boolean },
   createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
   images: [
     {

@@ -97,55 +97,53 @@ router
     }
   );
 
-router
-  .route("/user/:userId/business/:routeName")
-  .delete(
-    verifyUser,
-    ...getApiValidators(
-      validators.param("userId").notEmpty(),
-      validators.param("routeName").notEmpty()
-    ),
-    (req, res) => {
-      withTryCatch(req, res, async () => {
-        const { params } = req;
+router.route("/user/:userId/business/:routeName").delete(
+  verifyUser,
+  //TODO add a middlware to check acces to this business
+  ...getApiValidators(
+    validators.param("userId").notEmpty(),
+    validators.param("routeName").notEmpty()
+  ),
+  (req, res) => {
+    withTryCatch(req, res, async () => {
+      const { params } = req;
 
-        const { routeName, userId } = params;
+      const { routeName, userId } = params;
 
-        const out = await queryHandlesBusiness.deleteOne({
-          res,
-          routeName,
-          userId,
-        });
-
-        if (out instanceof ServerResponse) return;
-
-        res.send();
+      const out = await queryHandlesBusiness.deleteOne({
+        res,
+        routeName,
+        userId,
       });
-    }
-  );
 
-router
-  .route("/user/:userId/business/:routeName/postImage")
-  .post(
-    verifyUser,
-    ...getApiValidators(
-      validators.param("userId").notEmpty(),
-      validators.param("routeName").notEmpty()
-    ),
-    upload.single("postImage"),
-    (req, res) => {
-      withTryCatch(req, res, async () => {
-        const { file } = req;
-        if (!file) {
-          return res.sendStatus(404).json({ message: "Has not file" });
-        }
+      if (out instanceof ServerResponse) return;
 
-        res.send({
-          imageSrc: file.path.replace(imagesDir, ""),
-        });
+      res.send();
+    });
+  }
+);
+
+router.route("/user/:userId/business/:routeName/postImage").post(
+  verifyUser,
+  //TODO add a middlware to check acces to this business
+  ...getApiValidators(
+    validators.param("userId").notEmpty(),
+    validators.param("routeName").notEmpty()
+  ),
+  upload.single("postImage"),
+  (req, res) => {
+    withTryCatch(req, res, async () => {
+      const { file } = req;
+      if (!file) {
+        return res.sendStatus(404).json({ message: "Has not file" });
+      }
+
+      res.send({
+        imageSrc: file.path.replace(imagesDir, ""),
       });
-    }
-  );
+    });
+  }
+);
 
 router
   .route("/user/:userId/posts")
@@ -178,8 +176,33 @@ router
 
 router
   .route("/user/:userId/posts/:postId")
+  .put(
+    verifyUser,
+    //TODO add a middlware to check acces to this post
+    ...getApiValidators(
+      validators.param("userId").notEmpty(),
+      validators.param("postId").notEmpty()
+    ),
+    (req, res) => {
+      withTryCatch(req, res, async () => {
+        const { params, body } = req;
+        const { postId } = params;
+
+        const out = await queryHandlesPosts.updateOne({
+          res,
+          postId,
+          partial: body,
+        });
+
+        if (out instanceof ServerResponse) return;
+
+        res.send(out);
+      });
+    }
+  )
   .delete(
     verifyUser,
+    //TODO add a middlware to check acces to this post
     ...getApiValidators(
       validators.param("userId").notEmpty(),
       validators.param("postId").notEmpty()
