@@ -1,7 +1,7 @@
 import { FilterQuery, PaginateOptions, PaginateResult } from "mongoose";
 import { QueryHandle } from "../../../types";
 import { PostModel } from "../schemas";
-import { Post } from "../types";
+import { Post, PostImage } from "../types";
 
 const getAll: QueryHandle<
   {
@@ -76,32 +76,25 @@ const deleteMany: QueryHandle<{
 };
 
 const addOne: QueryHandle<
-  {
-    routeName: string;
-    description: string;
-    name: string;
-    price?: number;
-    currency?: string;
-    amountAvailable?: number;
-    userId: string;
-  },
+  Pick<
+    Post,
+    | "currency"
+    | "description"
+    | "images"
+    | "price"
+    | "routeName"
+    | "amountAvailable"
+    | "name"
+    | "clothingSizes"
+    | "colors"
+    | "details"
+    | "highlights"
+  > & { userId: string },
   Post
-> = async ({
-  routeName,
-  description,
-  name,
-  amountAvailable,
-  currency,
-  price,
-  userId,
-}) => {
+> = async ({ userId, ...omittedProps }) => {
   const newPost = new PostModel({
-    amountAvailable,
-    routeName,
-    currency,
-    description,
-    name,
-    price,
+    ...omittedProps,
+    reviews: [0, 0, 0, 0, 0],
     createdBy: userId,
   });
 

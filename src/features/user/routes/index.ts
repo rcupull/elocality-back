@@ -13,8 +13,30 @@ import {
 import { Business } from "../../business/types";
 import { queryHandlesPosts } from "../../post/routes/handles";
 import { verifyUser } from "../../../middlewares/verify";
+import multer from "multer";
+import fs from "fs";
 
 export const router = Router();
+
+const imagesDir = "app-images";
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const { userId, routeName } = req.params;
+
+    const path = `./${imagesDir}/${userId}/${routeName}/`;
+    fs.mkdirSync(path, { recursive: true });
+
+    cb(null, path); // Destination folder for uploaded files
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + "-" + file.originalname); // Rename the file to include the timestamp
+  },
+});
+
+const upload = multer({ storage: storage });
+
+/////////////////////////////////////////////////////////////////
 
 router
   .route("/user/:userId/business")
@@ -103,6 +125,29 @@ router
   );
 
 router
+  .route("/user/:userId/business/:routeName/postImage")
+  .post(
+    verifyUser,
+    ...getApiValidators(
+      validators.param("userId").notEmpty(),
+      validators.param("routeName").notEmpty()
+    ),
+    upload.single("postImage"),
+    (req, res) => {
+      withTryCatch(req, res, async () => {
+        const { file } = req;
+        if (!file) {
+          return res.sendStatus(404).json({ message: "Has not file" });
+        }
+
+        res.send({
+          imageSrc: file.path.replace(imagesDir, ""),
+        });
+      });
+    }
+  );
+
+router
   .route("/user/:userId/posts")
   .post(
     verifyUser,
@@ -118,24 +163,10 @@ router
 
         const { userId } = params;
 
-        const {
-          amountAvailable,
-          currency,
-          description,
-          name,
-          price,
-          routeName,
-        } = body;
-
         const out = await queryHandlesPosts.addOne({
-          res,
-          amountAvailable,
-          routeName,
-          currency,
-          description,
-          name,
-          price,
+          ...body,
           userId,
+          res,
         });
 
         if (out instanceof ServerResponse) return;

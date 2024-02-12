@@ -21,6 +21,7 @@ if (DOC === "true") {
 }
 
 app.use(cors({ origin: "*", optionsSuccessStatus: 200 }));
+app.use(express.static("app-images"));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

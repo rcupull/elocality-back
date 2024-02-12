@@ -9,10 +9,41 @@ const PostSchema = new Schema<Post>({
   amountAvailable: { type: Number },
   currency: { type: String, enum: ["CUP", "MLC", "USD"] },
   description: { type: String, required: true },
+  details: { type: String },
   createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
   images: [
     {
-      url: { type: String },
+      src: { type: String, required: true },
+    },
+  ],
+  clothingSizes: [
+    {
+      type: String,
+      enum: ["XXS", "XS", "S", "M", "L", "XL", "2XL", "3XL"],
+    },
+  ],
+  colors: [
+    {
+      type: String,
+      enum: ["white", "gray", "black"],
+      required: true,
+    },
+  ],
+  reviews: [
+    {
+      type: Number,
+    },
+    {
+      type: Number,
+    },
+    {
+      type: Number,
+    },
+    {
+      type: Number,
+    },
+    {
+      type: Number,
     },
   ],
   name: { type: String, required: true },
