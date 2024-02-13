@@ -8,23 +8,22 @@ import {
 } from "express-validator";
 import { AnyRecord } from "../types";
 
-export const getApiValidators = (...validators: Array<RequestHandler>) => {
-  return [
-    ...validators,
-    (req: Request, res: Response, next: NextFunction) => {
-      const errors = validationResult(req);
+const handle: RequestHandler = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const errors = validationResult(req);
 
-      if (!errors.isEmpty()) {
-        let error: AnyRecord = {};
-        errors.array().forEach((err) => {
-          //@ts-expect-error ignore
-          error[`${req.method} ${req.originalUrl} ${err.path}`] = err.msg;
-        });
-        return res.status(422).json({ error });
-      }
-      next();
-    },
-  ];
+  if (!errors.isEmpty()) {
+    let error: AnyRecord = {};
+    errors.array().forEach((err) => {
+      //@ts-expect-error ignore
+      error[`${req.method} ${req.originalUrl} ${err.path}`] = err.msg;
+    });
+    return res.status(422).json({ error });
+  }
+  next();
 };
 
 export const validators = {
@@ -32,4 +31,5 @@ export const validators = {
   param,
   body,
   header,
+  handle,
 };

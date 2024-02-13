@@ -1,40 +1,12 @@
-import { Request, Router } from "express";
-import { withTryCatch } from "../../utils/error";
-import {
-  RequestWithPagination,
-  pagination,
-} from "../../middlewares/pagination";
-import { businessServices } from "../business/services";
-import { ServerResponse } from "http";
-import {
-  getApiValidators,
-  validators,
-} from "../../middlewares/express-validator";
-import { Business } from "../business/types";
-import { postServices } from "../post/services";
-import { RequestWithUser, verifyUser } from "../../middlewares/verify";
-import multer from "multer";
-import fs from "fs";
+import { Router } from "express";
+import { pagination } from "../../middlewares/pagination";
+import { validators } from "../../middlewares/express-validator";
+import { verifyUser } from "../../middlewares/verify";
+
+import { userHandles } from "./handles";
+import { uploadMiddleware } from "../../middlewares/files";
 
 export const router = Router();
-
-const imagesDir = "app-images";
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const { userId, routeName } = req.params;
-
-    const path = `./${imagesDir}/${userId}/${routeName}/`;
-    fs.mkdirSync(path, { recursive: true });
-
-    cb(null, path); // Destination folder for uploaded files
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname); // Rename the file to include the timestamp
-  },
-});
-
-const upload = multer({ storage: storage });
 
 /////////////////////////////////////////////////////////////////
 
@@ -42,59 +14,19 @@ router
   .route("/user/:userId/business")
   .get(
     verifyUser,
-    ...getApiValidators(validators.param("userId").notEmpty()),
+    validators.param("userId").notEmpty(),
+    validators.handle,
     pagination,
-    (req: RequestWithPagination, res) => {
-      withTryCatch(req, res, async () => {
-        const { paginateOptions, query, params } = req;
-
-        const { userId } = params;
-
-        const { routeName, search } = query;
-
-        const out = await businessServices.getAll({
-          res,
-          paginateOptions,
-          createdBy: userId,
-          routeName,
-          search,
-        });
-
-        if (out instanceof ServerResponse) return;
-
-        res.send(out);
-      });
-    }
+    userHandles.get_users_userId_business()
   )
   .post(
     verifyUser,
-    ...getApiValidators(
-      validators.param("userId").notEmpty(),
-      validators.body("name").notEmpty(),
-      validators.body("category").notEmpty(),
-      validators.body("routeName").notEmpty()
-    ),
-    (req: Request<any, any, Business>, res) => {
-      withTryCatch(req, res, async () => {
-        const { body, params } = req;
-
-        const { userId } = params;
-
-        const { name, category, routeName } = body;
-
-        const out = await businessServices.addOne({
-          category,
-          name,
-          routeName,
-          userId,
-          res,
-        });
-
-        if (out instanceof ServerResponse) return;
-
-        res.send(out);
-      });
-    }
+    validators.param("userId").notEmpty(),
+    validators.body("name").notEmpty(),
+    validators.body("category").notEmpty(),
+    validators.body("routeName").notEmpty(),
+    validators.handle,
+    userHandles.post_users_userId_business()
   );
 
 router
@@ -102,222 +34,79 @@ router
   .get(
     verifyUser,
     //TODO add a middlware to check acces to this post
-    ...getApiValidators(
-      validators.param("userId").notEmpty(),
-      validators.param("routeName").notEmpty()
-    ),
-    (req, res) => {
-      withTryCatch(req, res, async () => {
-        const { params } = req as unknown as RequestWithUser;
-        const { routeName, userId } = params;
-
-        const out = await businessServices.findOne({
-          res,
-          routeName,
-          createdBy: userId,
-        });
-
-        if (out instanceof ServerResponse) return;
-
-        res.send(out);
-      });
-    }
+    validators.param("userId").notEmpty(),
+    validators.param("routeName").notEmpty(),
+    validators.handle,
+    userHandles.get_users_userId_business_routeName()
   )
   .put(
     verifyUser,
     //TODO add a middlware to check acces to this post
-    ...getApiValidators(
-      validators.param("userId").notEmpty(),
-      validators.param("routeName").notEmpty()
-    ),
-    (req, res) => {
-      withTryCatch(req, res, async () => {
-        const { params, body } = req;
-        const { routeName } = params;
-
-        const out = await businessServices.updateOne({
-          res,
-          query: {
-            routeName,
-          },
-          update: body,
-        });
-
-        if (out instanceof ServerResponse) return;
-
-        res.send(out);
-      });
-    }
+    validators.param("userId").notEmpty(),
+    validators.param("routeName").notEmpty(),
+    validators.handle,
+    userHandles.put_users_userId_business_routeName()
   )
   .delete(
     verifyUser,
     //TODO add a middlware to check acces to this business
-    ...getApiValidators(
-      validators.param("userId").notEmpty(),
-      validators.param("routeName").notEmpty()
-    ),
-    (req, res) => {
-      withTryCatch(req, res, async () => {
-        const { params } = req;
-
-        const { routeName, userId } = params;
-
-        const out = await businessServices.deleteOne({
-          res,
-          routeName,
-          userId,
-        });
-
-        if (out instanceof ServerResponse) return;
-
-        res.send();
-      });
-    }
+    validators.param("userId").notEmpty(),
+    validators.param("routeName").notEmpty(),
+    validators.handle,
+    userHandles.delete_users_userId_business_routeName()
   );
 
 router.route("/user/:userId/business/:routeName/image").post(
   verifyUser,
   //TODO add a middlware to check acces to this business
-  ...getApiValidators(
-    validators.param("userId").notEmpty(),
-    validators.param("routeName").notEmpty()
-  ),
-  upload.single("image"),
-  (req, res) => {
-    withTryCatch(req, res, async () => {
-      const { file } = req;
-      if (!file) {
-        return res.sendStatus(404).json({ message: "Has not file" });
-      }
-
-      res.send({
-        imageSrc: file.path.replace(imagesDir, ""),
-      });
-    });
-  }
+  validators.param("userId").notEmpty(),
+  validators.param("routeName").notEmpty(),
+  validators.handle,
+  uploadMiddleware.single("image"),
+  userHandles.post_users_userId_business_routeName_image()
 );
 
 router
   .route("/user/:userId/posts")
   .get(
     verifyUser,
-    ...getApiValidators(validators.param("userId").notEmpty()),
+    validators.param("userId").notEmpty(),
+    validators.handle,
     pagination,
-    (req, res) => {
-      withTryCatch(req, res, async () => {
-        const { query, paginateOptions, params } =
-          req as unknown as RequestWithPagination;
-
-        const { userId } = params;
-
-        const { search, routeNames } = query;
-
-        const out = await postServices.getAll({
-          res,
-          paginateOptions,
-          routeNames,
-          search,
-          createdBy: userId,
-        });
-
-        if (out instanceof ServerResponse) return;
-
-        res.send(out);
-      });
-    }
+    userHandles.get_users_userId_posts()
   )
   .post(
     verifyUser,
-    ...getApiValidators(
-      validators.param("userId").notEmpty(),
-      validators.body("routeName").notEmpty(),
-      validators.body("name").notEmpty(),
-      validators.body("description").notEmpty()
-    ),
-    (req, res) => {
-      withTryCatch(req, res, async () => {
-        const { body, params } = req;
-
-        const { userId } = params;
-
-        const out = await postServices.addOne({
-          ...body,
-          createdBy: userId,
-          res,
-        });
-
-        if (out instanceof ServerResponse) return;
-
-        res.send(out);
-      });
-    }
+    validators.param("userId").notEmpty(),
+    validators.body("routeName").notEmpty(),
+    validators.body("name").notEmpty(),
+    validators.body("description").notEmpty(),
+    validators.handle,
+    userHandles.post_users_userId_posts()
   );
 
 router
   .route("/user/:userId/posts/:postId")
   .get(
-    ...getApiValidators(
-      validators.param("userId").notEmpty(),
-      validators.param("postId").notEmpty()
-    ),
-    (req, res) => {
-      withTryCatch(req, res, async () => {
-        const { params } = req;
-        const { postId } = params;
-
-        const out = await postServices.getOne({ res, postId });
-
-        if (out instanceof ServerResponse) return;
-
-        res.send(out);
-      });
-    }
+    validators.param("userId").notEmpty(),
+    validators.param("postId").notEmpty(),
+    validators.handle,
+    userHandles.get_users_userId_posts_postId()
   )
   .put(
     verifyUser,
     //TODO add a middlware to check acces to this post
-    ...getApiValidators(
-      validators.param("userId").notEmpty(),
-      validators.param("postId").notEmpty()
-    ),
-    (req, res) => {
-      withTryCatch(req, res, async () => {
-        const { params, body } = req;
-        const { postId } = params;
-
-        const out = await postServices.updateOne({
-          res,
-          postId,
-          partial: body,
-        });
-
-        if (out instanceof ServerResponse) return;
-
-        res.send(out);
-      });
-    }
+    validators.param("userId").notEmpty(),
+    validators.param("postId").notEmpty(),
+    validators.handle,
+    userHandles.put_users_userId_posts_postId()
   )
   .delete(
     verifyUser,
     //TODO add a middlware to check acces to this post
-    ...getApiValidators(
-      validators.param("userId").notEmpty(),
-      validators.param("postId").notEmpty()
-    ),
-    (req, res) => {
-      withTryCatch(req, res, async () => {
-        const { params } = req;
-        const { postId, userId } = params;
+    validators.param("userId").notEmpty(),
+    validators.param("postId").notEmpty(),
+    validators.handle,
 
-        const out = await postServices.deleteMany({
-          res,
-          ids: [postId],
-          userId,
-        });
-
-        if (out instanceof ServerResponse) return;
-
-        res.send(out);
-      });
-    }
+    userHandles.delete_users_userId_posts_postId()
   );
