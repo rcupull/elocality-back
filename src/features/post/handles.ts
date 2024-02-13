@@ -1,12 +1,12 @@
 import { FilterQuery, PaginateOptions } from "mongoose";
-import { QueryHandle } from "../../../types";
-import { PostModel } from "../schemas";
-import { Post, PostImage } from "../types";
-import { queryHandlesBusiness } from "../../business/routes/handles";
+import { QueryHandle } from "../../types";
+import { PostModel } from "./schemas";
+import { Post, PostImage } from "./types";
+import { queryHandlesBusiness } from "../business/handles";
 import {
   PaginateResult,
   paginationCustomLabels,
-} from "../../../middlewares/pagination";
+} from "../../middlewares/pagination";
 
 const getAll: QueryHandle<
   {

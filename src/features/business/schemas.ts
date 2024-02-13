@@ -1,9 +1,9 @@
 import { PaginateModel, Schema, model } from "mongoose";
-import { Business } from "../types";
+import { Business } from "./types";
 import mongoosePaginate from "mongoose-paginate-v2";
-import { createdAtSchemaDefinition } from "../../../utils/schemas";
-import { queryHandlesPosts } from "../../post/routes/handles";
-import { PostModel } from "../../post/schemas";
+import { createdAtSchemaDefinition } from "../../utils/schemas";
+import { queryHandlesPosts } from "../post/handles";
+import { PostModel } from "../post/schemas";
 
 const BusinessSchema = new Schema<Business>({
   ...createdAtSchemaDefinition,

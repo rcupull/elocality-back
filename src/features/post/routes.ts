@@ -1,15 +1,15 @@
 import { Router } from "express";
-import { withTryCatch } from "../../../utils/error";
+import { withTryCatch } from "../../utils/error";
 
 import {
   RequestWithPagination,
   pagination,
-} from "../../../middlewares/pagination";
-import { RequestWithUser, verifyUser } from "../../../middlewares/verify";
+} from "../../middlewares/pagination";
+import { RequestWithUser, verifyUser } from "../../middlewares/verify";
 import {
   getApiValidators,
   validators,
-} from "../../../middlewares/express-validator";
+} from "../../middlewares/express-validator";
 import { queryHandlesPosts } from "./handles";
 import { ServerResponse } from "http";
 

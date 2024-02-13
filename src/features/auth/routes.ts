@@ -2,15 +2,15 @@ import { Request, Router } from "express";
 import { v4 as uuid } from "uuid";
 import bcrypt from "bcrypt";
 
-import { withTryCatch } from "../../../utils/error";
-import { SessionModel, ValidationCodeModel } from "../schemas";
-import { sendEmail } from "../../email";
-import { UserModel } from "../../user/schemas";
+import { withTryCatch } from "../../utils/error";
+import { SessionModel, ValidationCodeModel } from "./schemas";
+import { sendEmail } from "../email";
+import { UserModel } from "../user/schemas";
 import {
   getApiValidators,
   validators,
-} from "../../../middlewares/express-validator";
-import { queryHandlesUser } from "../../user/routes/handles";
+} from "../../middlewares/express-validator";
+import { queryHandlesUser } from "../user/routes/handles";
 import { ServerResponse } from "http";
 
 export const router = Router();

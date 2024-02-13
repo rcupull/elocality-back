@@ -1,8 +1,6 @@
 import { QueryHandle } from "../../../types";
 import { User } from "../../user/types";
-import { queryHandlesPosts } from "../../post/routes/handles";
 import { UserModel } from "../../user/schemas";
-import { queryHandlesBusiness } from "../../business/routes/handles";
 
 const addOne: QueryHandle<
   {

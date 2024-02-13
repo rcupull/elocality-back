@@ -1,12 +1,12 @@
 import { FilterQuery, PaginateOptions } from "mongoose";
-import { QueryHandle } from "../../../types";
-import { Business, BusinessCategory } from "../types";
-import { BusinessModel } from "../schemas";
-import { queryHandlesPosts } from "../../post/routes/handles";
+import { QueryHandle } from "../../types";
+import { Business, BusinessCategory } from "./types";
+import { BusinessModel } from "./schemas";
+import { queryHandlesPosts } from "../post/handles";
 import {
   PaginateResult,
   paginationCustomLabels,
-} from "../../../middlewares/pagination";
+} from "../../middlewares/pagination";
 import { ServerResponse } from "http";
 
 interface GetAllArgs {

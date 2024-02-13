@@ -4,14 +4,14 @@ import {
   RequestWithPagination,
   pagination,
 } from "../../../middlewares/pagination";
-import { queryHandlesBusiness } from "../../business/routes/handles";
+import { queryHandlesBusiness } from "../../business/handles";
 import { ServerResponse } from "http";
 import {
   getApiValidators,
   validators,
 } from "../../../middlewares/express-validator";
 import { Business } from "../../business/types";
-import { queryHandlesPosts } from "../../post/routes/handles";
+import { queryHandlesPosts } from "../../post/handles";
 import { verifyUser } from "../../../middlewares/verify";
 import multer from "multer";
 import fs from "fs";

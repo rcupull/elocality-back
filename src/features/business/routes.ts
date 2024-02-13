@@ -1,14 +1,14 @@
 import { Router } from "express";
-import { withTryCatch } from "../../../utils/error";
-import { RequestWithUser } from "../../../middlewares/verify";
+import { withTryCatch } from "../../utils/error";
+import { RequestWithUser } from "../../middlewares/verify";
 import {
   getApiValidators,
   validators,
-} from "../../../middlewares/express-validator";
+} from "../../middlewares/express-validator";
 import {
   RequestWithPagination,
   pagination,
-} from "../../../middlewares/pagination";
+} from "../../middlewares/pagination";
 import { queryHandlesBusiness } from "./handles";
 import { ServerResponse } from "http";
 

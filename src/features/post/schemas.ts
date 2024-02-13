@@ -1,7 +1,7 @@
 import { Schema, model, PaginateModel } from "mongoose";
-import { Post } from "../types";
+import { Post } from "./types";
 import mongoosePaginate from "mongoose-paginate-v2";
-import { createdAtSchemaDefinition } from "../../../utils/schemas";
+import { createdAtSchemaDefinition } from "../../utils/schemas";
 
 const PostSchema = new Schema<Post>({
   ...createdAtSchemaDefinition,
