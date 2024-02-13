@@ -5,7 +5,6 @@ import {
   RequestWithPagination,
   pagination,
 } from "../../middlewares/pagination";
-import { RequestWithUser, verifyUser } from "../../middlewares/verify";
 import {
   getApiValidators,
   validators,
@@ -27,6 +26,7 @@ router.route("/posts").get(pagination, (req, res) => {
       routeNames,
       search,
       hidden: false,
+      hiddenBusiness: false,
     });
 
     if (out instanceof ServerResponse) return;

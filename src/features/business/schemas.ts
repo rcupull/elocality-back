@@ -2,7 +2,6 @@ import { PaginateModel, Schema, model } from "mongoose";
 import { Business } from "./types";
 import mongoosePaginate from "mongoose-paginate-v2";
 import { createdAtSchemaDefinition } from "../../utils/schemas";
-import { queryHandlesPosts } from "../post/handles";
 import { PostModel } from "../post/schemas";
 
 const BusinessSchema = new Schema<Business>({
@@ -17,8 +16,6 @@ const BusinessSchema = new Schema<Business>({
 BusinessSchema.plugin(mongoosePaginate);
 
 BusinessSchema.pre("updateOne", async function (next) {
-  const user = this;
-
   //@ts-expect-error ignored
   const { hidden } = this.getUpdate();
   const { routeName } = this.getQuery();
@@ -29,7 +26,7 @@ BusinessSchema.pre("updateOne", async function (next) {
         routeName,
       },
       {
-        hidden,
+        hiddenBusiness: hidden,
       }
     );
   }

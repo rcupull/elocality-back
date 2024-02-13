@@ -41,13 +41,8 @@ const getAll: QueryHandle<GetAllArgs, PaginateResult<Business>> = async ({
   }
   ///////////////////////////////////////////////////////////////////
 
-  if (hidden === true) {
-    filterQuery.hidden = true;
-  }
-  ///////////////////////////////////////////////////////////////////
-
-  if (hidden === false) {
-    filterQuery.hidden = { $ne: true }; // search by false or null
+  if (hidden !== undefined) {
+    filterQuery.hidden = hidden;
   }
   ///////////////////////////////////////////////////////////////////
 
@@ -148,19 +143,12 @@ const deleteOne: QueryHandle<{
 };
 
 const updateOne: QueryHandle<{
-  routeName: string;
-  partial: Partial<Pick<Business, "hidden">>;
-}> = async ({ routeName, partial }) => {
-  const { hidden } = partial;
-
-  await BusinessModel.updateOne(
-    {
-      routeName,
-    },
-    {
-      hidden,
-    }
-  );
+  query: {
+    routeName: string;
+  };
+  update: Partial<Pick<Business, "hidden">>;
+}> = async ({ query, update }) => {
+  await BusinessModel.updateOne(query, update);
 };
 
 export const queryHandlesBusiness = {

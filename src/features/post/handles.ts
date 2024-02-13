@@ -1,8 +1,7 @@
 import { FilterQuery, PaginateOptions } from "mongoose";
 import { QueryHandle } from "../../types";
 import { PostModel } from "./schemas";
-import { Post, PostImage } from "./types";
-import { queryHandlesBusiness } from "../business/handles";
+import { Post } from "./types";
 import {
   PaginateResult,
   paginationCustomLabels,
@@ -14,6 +13,7 @@ const getAll: QueryHandle<
     routeNames?: Array<string>;
     search?: string;
     hidden?: boolean;
+    hiddenBusiness?: boolean;
     createdBy?: string;
   },
   PaginateResult<Post>
@@ -21,7 +21,7 @@ const getAll: QueryHandle<
   paginateOptions = {},
   routeNames,
   search,
-  res,
+  hiddenBusiness,
   hidden,
   createdBy,
 }) => {
@@ -40,14 +40,14 @@ const getAll: QueryHandle<
 
   ///////////////////////////////////////////////////////////////////
 
-  if (hidden === true) {
-    filterQuery.hidden = true;
+  if (hidden !== undefined) {
+    filterQuery.hidden = hidden;
   }
 
   ///////////////////////////////////////////////////////////////////
 
-  if (hidden === false) {
-    filterQuery.hidden = { $ne: true }; // search by false or null
+  if (hiddenBusiness !== undefined) {
+    filterQuery.hiddenBusiness = hiddenBusiness;
   }
 
   ///////////////////////////////////////////////////////////////////
@@ -134,14 +134,11 @@ const addOne: QueryHandle<
     | "colors"
     | "details"
     | "highlights"
-  > & { userId: string },
+    | "createdBy"
+  >,
   Post
-> = async ({ userId, ...omittedProps }) => {
-  const newPost = new PostModel({
-    ...omittedProps,
-    reviews: [0, 0, 0, 0, 0],
-    createdBy: userId,
-  });
+> = async (args) => {
+  const newPost = new PostModel(args);
 
   await newPost.save();
 

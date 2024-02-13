@@ -113,8 +113,10 @@ router
 
         const out = await queryHandlesBusiness.updateOne({
           res,
-          routeName,
-          partial: body,
+          query: {
+            routeName,
+          },
+          update: body,
         });
 
         if (out instanceof ServerResponse) return;
@@ -216,7 +218,7 @@ router
 
         const out = await queryHandlesPosts.addOne({
           ...body,
-          userId,
+          createdBy: userId,
           res,
         });
 
