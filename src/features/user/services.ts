@@ -29,6 +29,6 @@ const addOne: QueryHandle<
   return newUser;
 };
 
-export const queryHandlesUser = {
+export const userServices = {
   addOne,
 };

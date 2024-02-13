@@ -9,7 +9,7 @@ import {
   RequestWithPagination,
   pagination,
 } from "../../middlewares/pagination";
-import { queryHandlesBusiness } from "./handles";
+import { businessServices } from "./services";
 import { ServerResponse } from "http";
 
 export const router = Router();
@@ -22,7 +22,7 @@ router.route("/business").get(pagination, (req, res) => {
 
     const { routeName, search } = query;
 
-    const out = await queryHandlesBusiness.getAll({
+    const out = await businessServices.getAll({
       res,
       paginateOptions,
       routeName,
@@ -47,7 +47,7 @@ router
         const { params } = req as unknown as RequestWithUser;
         const { routeName } = params;
 
-        const out = await queryHandlesBusiness.findOne({
+        const out = await businessServices.findOne({
           res,
           routeName,
         });

@@ -195,7 +195,7 @@ const updateOne: QueryHandle<{
   );
 };
 
-export const queryHandlesPosts = {
+export const postServices = {
   deleteMany,
   getAll,
   addOne,

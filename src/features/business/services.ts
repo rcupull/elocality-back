@@ -2,7 +2,7 @@ import { FilterQuery, PaginateOptions } from "mongoose";
 import { QueryHandle } from "../../types";
 import { Business, BusinessCategory } from "./types";
 import { BusinessModel } from "./schemas";
-import { queryHandlesPosts } from "../post/handles";
+import { postServices } from "../post/services";
 import {
   PaginateResult,
   paginationCustomLabels,
@@ -133,7 +133,7 @@ const deleteOne: QueryHandle<{
     createdBy: userId,
   });
 
-  const out = await queryHandlesPosts.deleteMany({
+  const out = await postServices.deleteMany({
     routeNames: [routeName],
     res,
     userId,
@@ -151,7 +151,7 @@ const updateOne: QueryHandle<{
   await BusinessModel.updateOne(query, update);
 };
 
-export const queryHandlesBusiness = {
+export const businessServices = {
   getAll,
   getAllWithoutPagination,
   addOne,

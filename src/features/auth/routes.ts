@@ -10,7 +10,7 @@ import {
   getApiValidators,
   validators,
 } from "../../middlewares/express-validator";
-import { queryHandlesUser } from "../user/handles";
+import { userServices } from "../user/services";
 import { ServerResponse } from "http";
 
 export const router = Router();
@@ -106,7 +106,7 @@ router
       withTryCatch(req, res, async () => {
         const { email, password, name } = req.body;
 
-        const newUser = await queryHandlesUser.addOne({
+        const newUser = await userServices.addOne({
           email,
           name,
           password,

@@ -79,7 +79,7 @@ export type RequestWithUser<
 //       return res.sendStatus(404).json({ message: "The user does not exist" });
 //     }
 
-//     const out = await queryHandlesBusiness.findOne({
+//     const out = await businessServices.findOne({
 //       businessId,
 //       user,
 //       res,

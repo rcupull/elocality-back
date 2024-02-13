@@ -9,7 +9,7 @@ import {
   getApiValidators,
   validators,
 } from "../../middlewares/express-validator";
-import { queryHandlesPosts } from "./handles";
+import { postServices } from "./services";
 import { ServerResponse } from "http";
 
 export const router = Router();
@@ -20,7 +20,7 @@ router.route("/posts").get(pagination, (req, res) => {
 
     const { search, routeNames } = query;
 
-    const out = await queryHandlesPosts.getAll({
+    const out = await postServices.getAll({
       res,
       paginateOptions,
       routeNames,
@@ -46,7 +46,7 @@ router
         const { params } = req;
         const { postId } = params;
 
-        const out = await queryHandlesPosts.getOne({
+        const out = await postServices.getOne({
           res,
           postId,
           hidden: false,

@@ -4,14 +4,14 @@ import {
   RequestWithPagination,
   pagination,
 } from "../../middlewares/pagination";
-import { queryHandlesBusiness } from "../business/handles";
+import { businessServices } from "../business/services";
 import { ServerResponse } from "http";
 import {
   getApiValidators,
   validators,
 } from "../../middlewares/express-validator";
 import { Business } from "../business/types";
-import { queryHandlesPosts } from "../post/handles";
+import { postServices } from "../post/services";
 import { RequestWithUser, verifyUser } from "../../middlewares/verify";
 import multer from "multer";
 import fs from "fs";
@@ -52,7 +52,7 @@ router
 
         const { routeName, search } = query;
 
-        const out = await queryHandlesBusiness.getAll({
+        const out = await businessServices.getAll({
           res,
           paginateOptions,
           createdBy: userId,
@@ -82,7 +82,7 @@ router
 
         const { name, category, routeName } = body;
 
-        const out = await queryHandlesBusiness.addOne({
+        const out = await businessServices.addOne({
           category,
           name,
           routeName,
@@ -111,7 +111,7 @@ router
         const { params } = req as unknown as RequestWithUser;
         const { routeName, userId } = params;
 
-        const out = await queryHandlesBusiness.findOne({
+        const out = await businessServices.findOne({
           res,
           routeName,
           createdBy: userId,
@@ -135,7 +135,7 @@ router
         const { params, body } = req;
         const { routeName } = params;
 
-        const out = await queryHandlesBusiness.updateOne({
+        const out = await businessServices.updateOne({
           res,
           query: {
             routeName,
@@ -162,7 +162,7 @@ router
 
         const { routeName, userId } = params;
 
-        const out = await queryHandlesBusiness.deleteOne({
+        const out = await businessServices.deleteOne({
           res,
           routeName,
           userId,
@@ -212,7 +212,7 @@ router
 
         const { search, routeNames } = query;
 
-        const out = await queryHandlesPosts.getAll({
+        const out = await postServices.getAll({
           res,
           paginateOptions,
           routeNames,
@@ -240,7 +240,7 @@ router
 
         const { userId } = params;
 
-        const out = await queryHandlesPosts.addOne({
+        const out = await postServices.addOne({
           ...body,
           createdBy: userId,
           res,
@@ -265,7 +265,7 @@ router
         const { params } = req;
         const { postId } = params;
 
-        const out = await queryHandlesPosts.getOne({ res, postId });
+        const out = await postServices.getOne({ res, postId });
 
         if (out instanceof ServerResponse) return;
 
@@ -285,7 +285,7 @@ router
         const { params, body } = req;
         const { postId } = params;
 
-        const out = await queryHandlesPosts.updateOne({
+        const out = await postServices.updateOne({
           res,
           postId,
           partial: body,
@@ -309,7 +309,7 @@ router
         const { params } = req;
         const { postId, userId } = params;
 
-        const out = await queryHandlesPosts.deleteMany({
+        const out = await postServices.deleteMany({
           res,
           ids: [postId],
           userId,
