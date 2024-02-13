@@ -8,4 +8,5 @@ export interface Business extends BaseIdentity {
   routeName: string;
   category: BusinessCategory;
   createdBy: Schema.Types.ObjectId; // userId
+  hidden?: boolean;
 }

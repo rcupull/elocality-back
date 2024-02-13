@@ -1,35 +1,78 @@
-import { FilterQuery, PaginateOptions, PaginateResult } from "mongoose";
+import { FilterQuery, PaginateOptions } from "mongoose";
 import { QueryHandle } from "../../../types";
 import { Business, BusinessCategory } from "../types";
 import { BusinessModel } from "../schemas";
 import { queryHandlesPosts } from "../../post/routes/handles";
+import {
+  PaginateResult,
+  paginationCustomLabels,
+} from "../../../middlewares/pagination";
+import { ServerResponse } from "http";
 
-const getAll: QueryHandle<
-  {
-    paginateOptions?: PaginateOptions;
-    userId?: string;
-    routeName?: string;
-    search?: string;
-  },
-  PaginateResult<Business>
-> = async ({ paginateOptions, userId, routeName, search }) => {
+interface GetAllArgs {
+  paginateOptions?: PaginateOptions;
+  createdBy?: string;
+  routeName?: string;
+  search?: string;
+  hidden?: boolean;
+}
+const getAll: QueryHandle<GetAllArgs, PaginateResult<Business>> = async ({
+  paginateOptions = {},
+  createdBy,
+  routeName,
+  search,
+  hidden,
+}) => {
   const filterQuery: FilterQuery<Business> = {};
 
-  if (userId) {
-    filterQuery.createdBy = userId;
+  ///////////////////////////////////////////////////////////////////
+  if (createdBy) {
+    filterQuery.createdBy = createdBy;
   }
+  ///////////////////////////////////////////////////////////////////
 
   if (routeName) {
     filterQuery.routeName = routeName;
   }
+  ///////////////////////////////////////////////////////////////////
 
   if (search) {
     filterQuery.name = { $regex: new RegExp(search), $options: "i" };
   }
+  ///////////////////////////////////////////////////////////////////
 
-  const out = await BusinessModel.paginate(filterQuery, paginateOptions);
+  if (hidden === true) {
+    filterQuery.hidden = true;
+  }
+  ///////////////////////////////////////////////////////////////////
 
-  return out;
+  if (hidden === false) {
+    filterQuery.hidden = { $ne: true }; // search by false or null
+  }
+  ///////////////////////////////////////////////////////////////////
+
+  const out = await BusinessModel.paginate(filterQuery, {
+    ...paginateOptions,
+    customLabels: paginationCustomLabels,
+  });
+
+  return out as unknown as PaginateResult<Business>;
+};
+
+const getAllWithoutPagination: QueryHandle<
+  Omit<GetAllArgs, "paginateOptions">,
+  Array<Business>
+> = async (args) => {
+  const out = await getAll({
+    ...args,
+    paginateOptions: {
+      pagination: false,
+    },
+  });
+
+  if (out instanceof ServerResponse) return out;
+
+  return out.data;
 };
 
 const addOne: QueryHandle<
@@ -104,9 +147,27 @@ const deleteOne: QueryHandle<{
   return out;
 };
 
+const updateOne: QueryHandle<{
+  routeName: string;
+  partial: Partial<Pick<Business, "hidden">>;
+}> = async ({ routeName, partial }) => {
+  const { hidden } = partial;
+
+  await BusinessModel.updateOne(
+    {
+      routeName,
+    },
+    {
+      hidden,
+    }
+  );
+};
+
 export const queryHandlesBusiness = {
   getAll,
+  getAllWithoutPagination,
   addOne,
   findOne,
   deleteOne,
+  updateOne,
 };

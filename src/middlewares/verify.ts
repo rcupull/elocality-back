@@ -30,17 +30,17 @@ export const verifyUser: RequestHandler = (req, res, next) => {
       }
 
       //@ts-expect-error
-      const { id } = decoded; // get user id from the decoded token
-      const autehticatedUser = await UserModel.findById(id); // find user by that `id`
+      const { id: idInToken } = decoded; // get user id from the decoded token
+      const autehticatedUser = await UserModel.findById(idInToken); // find user by that `id`
 
       if (!autehticatedUser) {
         return res.status(401).json({ message: "The user does not exist" });
       }
 
-      if (
-        autehticatedUser.role === "user" &&
-        autehticatedUser._id.toString() !== userIdInParams
-      ) {
+      const { _id, role } = autehticatedUser;
+      const idInBD = _id.toString();
+
+      if (role === "user" && idInBD !== userIdInParams) {
         return res
           .status(401)
           .json({ message: "This user has not access to this information" });

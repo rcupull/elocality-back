@@ -27,6 +27,7 @@ router.route("/business").get(pagination, (req, res) => {
       paginateOptions,
       routeName,
       search,
+      hidden: false,
     });
 
     if (out instanceof ServerResponse) return;

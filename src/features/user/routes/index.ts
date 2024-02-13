@@ -55,7 +55,7 @@ router
         const out = await queryHandlesBusiness.getAll({
           res,
           paginateOptions,
-          userId,
+          createdBy: userId,
           routeName,
           search,
         });
@@ -97,40 +97,66 @@ router
     }
   );
 
-router.route("/user/:userId/business/:routeName").delete(
-  verifyUser,
-  //TODO add a middlware to check acces to this business
-  ...getApiValidators(
-    validators.param("userId").notEmpty(),
-    validators.param("routeName").notEmpty()
-  ),
-  (req, res) => {
-    withTryCatch(req, res, async () => {
-      const { params } = req;
+router
+  .route("/user/:userId/business/:routeName")
+  .put(
+    verifyUser,
+    //TODO add a middlware to check acces to this post
+    ...getApiValidators(
+      validators.param("userId").notEmpty(),
+      validators.param("routeName").notEmpty()
+    ),
+    (req, res) => {
+      withTryCatch(req, res, async () => {
+        const { params, body } = req;
+        const { routeName } = params;
 
-      const { routeName, userId } = params;
+        const out = await queryHandlesBusiness.updateOne({
+          res,
+          routeName,
+          partial: body,
+        });
 
-      const out = await queryHandlesBusiness.deleteOne({
-        res,
-        routeName,
-        userId,
+        if (out instanceof ServerResponse) return;
+
+        res.send(out);
       });
+    }
+  )
+  .delete(
+    verifyUser,
+    //TODO add a middlware to check acces to this business
+    ...getApiValidators(
+      validators.param("userId").notEmpty(),
+      validators.param("routeName").notEmpty()
+    ),
+    (req, res) => {
+      withTryCatch(req, res, async () => {
+        const { params } = req;
 
-      if (out instanceof ServerResponse) return;
+        const { routeName, userId } = params;
 
-      res.send();
-    });
-  }
-);
+        const out = await queryHandlesBusiness.deleteOne({
+          res,
+          routeName,
+          userId,
+        });
 
-router.route("/user/:userId/business/:routeName/postImage").post(
+        if (out instanceof ServerResponse) return;
+
+        res.send();
+      });
+    }
+  );
+
+router.route("/user/:userId/business/:routeName/image").post(
   verifyUser,
   //TODO add a middlware to check acces to this business
   ...getApiValidators(
     validators.param("userId").notEmpty(),
     validators.param("routeName").notEmpty()
   ),
-  upload.single("postImage"),
+  upload.single("image"),
   (req, res) => {
     withTryCatch(req, res, async () => {
       const { file } = req;
@@ -147,6 +173,33 @@ router.route("/user/:userId/business/:routeName/postImage").post(
 
 router
   .route("/user/:userId/posts")
+  .get(
+    verifyUser,
+    ...getApiValidators(validators.param("userId").notEmpty()),
+    pagination,
+    (req, res) => {
+      withTryCatch(req, res, async () => {
+        const { query, paginateOptions, params } =
+          req as unknown as RequestWithPagination;
+
+        const { userId } = params;
+
+        const { search, routeNames } = query;
+
+        const out = await queryHandlesPosts.getAll({
+          res,
+          paginateOptions,
+          routeNames,
+          search,
+          createdBy: userId,
+        });
+
+        if (out instanceof ServerResponse) return;
+
+        res.send(out);
+      });
+    }
+  )
   .post(
     verifyUser,
     ...getApiValidators(
@@ -176,6 +229,24 @@ router
 
 router
   .route("/user/:userId/posts/:postId")
+  .get(
+    ...getApiValidators(
+      validators.param("userId").notEmpty(),
+      validators.param("postId").notEmpty()
+    ),
+    (req, res) => {
+      withTryCatch(req, res, async () => {
+        const { params } = req;
+        const { postId } = params;
+
+        const out = await queryHandlesPosts.getOne({ res, postId });
+
+        if (out instanceof ServerResponse) return;
+
+        res.send(out);
+      });
+    }
+  )
   .put(
     verifyUser,
     //TODO add a middlware to check acces to this post

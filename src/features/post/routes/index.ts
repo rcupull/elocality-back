@@ -26,6 +26,7 @@ router.route("/posts").get(pagination, (req, res) => {
       paginateOptions,
       routeNames,
       search,
+      hidden: false,
     });
 
     if (out instanceof ServerResponse) return;
@@ -45,7 +46,11 @@ router
         const { params } = req;
         const { postId } = params;
 
-        const out = await queryHandlesPosts.getOne({ res, postId });
+        const out = await queryHandlesPosts.getOne({
+          res,
+          postId,
+          hidden: false,
+        });
 
         if (out instanceof ServerResponse) return;
 

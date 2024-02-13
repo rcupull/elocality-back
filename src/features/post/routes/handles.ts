@@ -1,48 +1,93 @@
-import { FilterQuery, PaginateOptions, PaginateResult } from "mongoose";
+import { FilterQuery, PaginateOptions } from "mongoose";
 import { QueryHandle } from "../../../types";
 import { PostModel } from "../schemas";
 import { Post, PostImage } from "../types";
+import { queryHandlesBusiness } from "../../business/routes/handles";
+import {
+  PaginateResult,
+  paginationCustomLabels,
+} from "../../../middlewares/pagination";
 
 const getAll: QueryHandle<
   {
     paginateOptions?: PaginateOptions;
     routeNames?: Array<string>;
     search?: string;
+    hidden?: boolean;
+    createdBy?: string;
   },
   PaginateResult<Post>
-> = async ({ paginateOptions, routeNames, search, res }) => {
+> = async ({
+  paginateOptions = {},
+  routeNames,
+  search,
+  res,
+  hidden,
+  createdBy,
+}) => {
   const filterQuery: FilterQuery<Post> = {};
+
+  ///////////////////////////////////////////////////////////////////
 
   if (search) {
     filterQuery.name = { $regex: new RegExp(search), $options: "i" };
   }
+  ///////////////////////////////////////////////////////////////////
 
   if (routeNames?.length) {
     filterQuery.routeName = { $in: routeNames };
   }
 
-  const out = await PostModel.paginate(filterQuery, paginateOptions);
+  ///////////////////////////////////////////////////////////////////
 
-  return out;
+  if (hidden === true) {
+    filterQuery.hidden = true;
+  }
+
+  ///////////////////////////////////////////////////////////////////
+
+  if (hidden === false) {
+    filterQuery.hidden = { $ne: true }; // search by false or null
+  }
+
+  ///////////////////////////////////////////////////////////////////
+
+  if (createdBy) {
+    filterQuery.createdBy = createdBy;
+  }
+
+  ///////////////////////////////////////////////////////////////////
+
+  const out = await PostModel.paginate(filterQuery, {
+    ...paginateOptions,
+    customLabels: paginationCustomLabels,
+  });
+
+  return out as unknown as PaginateResult<Post>;
 };
 
 const getOne: QueryHandle<
   {
     postId: string;
+    hidden?: boolean;
   },
   Post
-> = async ({ postId, res }) => {
+> = async ({ postId, res, hidden }) => {
   const filterQuery: FilterQuery<Post> = {};
 
   if (postId) {
     filterQuery._id = postId;
   }
 
+  if (hidden !== undefined) {
+    filterQuery.hidden = hidden;
+  }
+
   const out = await PostModel.findOne(filterQuery);
 
   if (!out) {
     return res.status(404).json({
-      message: "post not found",
+      message: "Post not found or you are not access to this post",
     });
   }
 
