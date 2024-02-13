@@ -1,6 +1,6 @@
-import { QueryHandle } from "../../../types";
-import { User } from "../../user/types";
-import { UserModel } from "../../user/schemas";
+import { QueryHandle } from "../../types";
+import { User } from "./types";
+import { UserModel } from "./schemas";
 
 const addOne: QueryHandle<
   {

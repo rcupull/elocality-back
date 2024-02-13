@@ -10,7 +10,7 @@ import {
   getApiValidators,
   validators,
 } from "../../middlewares/express-validator";
-import { queryHandlesUser } from "../user/routes/handles";
+import { queryHandlesUser } from "../user/handles";
 import { ServerResponse } from "http";
 
 export const router = Router();

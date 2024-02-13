@@ -101,16 +101,16 @@ const addOne: QueryHandle<
 const findOne: QueryHandle<
   {
     routeName: string;
-    userId?: string;
+    createdBy?: string;
   },
   Business
-> = async ({ routeName, userId, res }) => {
+> = async ({ routeName, createdBy, res }) => {
   const filterQuery: FilterQuery<Business> = {
     routeName,
   };
 
-  if (userId) {
-    filterQuery.createdBy = userId;
+  if (createdBy) {
+    filterQuery.createdBy = createdBy;
   }
 
   const out = await BusinessModel.findOne(filterQuery);

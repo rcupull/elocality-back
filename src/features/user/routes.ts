@@ -1,18 +1,18 @@
 import { Request, Router } from "express";
-import { withTryCatch } from "../../../utils/error";
+import { withTryCatch } from "../../utils/error";
 import {
   RequestWithPagination,
   pagination,
-} from "../../../middlewares/pagination";
-import { queryHandlesBusiness } from "../../business/handles";
+} from "../../middlewares/pagination";
+import { queryHandlesBusiness } from "../business/handles";
 import { ServerResponse } from "http";
 import {
   getApiValidators,
   validators,
-} from "../../../middlewares/express-validator";
-import { Business } from "../../business/types";
-import { queryHandlesPosts } from "../../post/handles";
-import { verifyUser } from "../../../middlewares/verify";
+} from "../../middlewares/express-validator";
+import { Business } from "../business/types";
+import { queryHandlesPosts } from "../post/handles";
+import { RequestWithUser, verifyUser } from "../../middlewares/verify";
 import multer from "multer";
 import fs from "fs";
 
@@ -99,6 +99,30 @@ router
 
 router
   .route("/user/:userId/business/:routeName")
+  .get(
+    verifyUser,
+    //TODO add a middlware to check acces to this post
+    ...getApiValidators(
+      validators.param("userId").notEmpty(),
+      validators.param("routeName").notEmpty()
+    ),
+    (req, res) => {
+      withTryCatch(req, res, async () => {
+        const { params } = req as unknown as RequestWithUser;
+        const { routeName, userId } = params;
+
+        const out = await queryHandlesBusiness.findOne({
+          res,
+          routeName,
+          createdBy: userId,
+        });
+
+        if (out instanceof ServerResponse) return;
+
+        res.send(out);
+      });
+    }
+  )
   .put(
     verifyUser,
     //TODO add a middlware to check acces to this post

@@ -1,9 +1,9 @@
 import { Schema, model } from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { SECRET_ACCESS_TOKEN } from "../../../constants/auth";
-import { User } from "../types";
-import { createdAtSchemaDefinition } from "../../../utils/schemas";
+import { SECRET_ACCESS_TOKEN } from "../../constants/auth";
+import { User } from "./types";
+import { createdAtSchemaDefinition } from "../../utils/schemas";
 
 const UserSchema = new Schema<User>({
   ...createdAtSchemaDefinition,
