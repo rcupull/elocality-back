@@ -13,6 +13,28 @@ const UserSchema = new Schema<User>({
   passwordVerbose: { type: String, required: true, select: false },
   role: { type: String, enum: ["user", "admin"], default: "user" },
   validated: { type: Boolean, default: false },
+  payment: {
+    planHistory: {
+      type: [
+        {
+          planType: {
+            type: String,
+            enum: ["free", "beginner", "professional", "company"],
+            required: true,
+          },
+          dateOfPurchase: { type: String, required: true },
+          trialMode: { type: Boolean, required: true },
+        },
+      ],
+      default: [
+        {
+          planType: "free",
+          dateOfPurchase: new Date().toISOString(),
+          trialMode: true,
+        },
+      ],
+    },
+  },
 });
 
 UserSchema.methods.generateAccessJWT = function () {

@@ -146,8 +146,10 @@ const addOne: QueryHandle<
 };
 
 const updateOne: QueryHandle<{
-  postId: string;
-  partial: Partial<
+  query: {
+    _id: string;
+  };
+  update: Partial<
     Pick<
       Post,
       | "currency"
@@ -160,39 +162,43 @@ const updateOne: QueryHandle<{
       | "details"
       | "highlights"
       | "hidden"
+      | "hiddenBusiness"
+      | "name"
+      | "reviews"
     >
   >;
-}> = async ({ postId, partial }) => {
+}> = async ({ query, update }) => {
   const {
     amountAvailable,
     clothingSizes,
     colors,
-    currency,
-    description,
     details,
     highlights,
     images,
+    name,
     price,
+    reviews,
+    currency,
+    description,
     hidden,
-  } = partial;
+    hiddenBusiness,
+  } = update;
 
-  await PostModel.updateOne(
-    {
-      _id: postId,
-    },
-    {
-      amountAvailable,
-      clothingSizes,
-      colors,
-      currency,
-      description,
-      details,
-      highlights,
-      images,
-      price,
-      hidden,
-    }
-  );
+  await PostModel.updateOne(query, {
+    amountAvailable,
+    clothingSizes,
+    colors,
+    details,
+    highlights,
+    images,
+    name,
+    price,
+    reviews,
+    currency,
+    description,
+    hidden,
+    hiddenBusiness,
+  });
 };
 
 export const postServices = {

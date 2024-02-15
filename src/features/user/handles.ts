@@ -7,6 +7,7 @@ import { Business } from "../business/types";
 import { RequestWithUser } from "../../middlewares/verify";
 import { postServices } from "../post/services";
 import { filesDir } from "../../middlewares/files";
+import { paymentPlans } from "../../constants/plans";
 
 const get_users_userId_business: () => RequestHandler = () => {
   return (req: RequestWithPagination, res) => {
@@ -71,6 +72,24 @@ const get_users_userId_business_routeName: () => RequestHandler = () => {
       if (out instanceof ServerResponse) return;
 
       res.send(out);
+    });
+  };
+};
+
+const get_users_userId_business_all_routeNames: () => RequestHandler = () => {
+  return (req, res) => {
+    withTryCatch(req, res, async () => {
+      const { params } = req as unknown as RequestWithUser;
+      const { userId } = params;
+
+      const out = await businessServices.getAllWithoutPagination({
+        res,
+        createdBy: userId,
+      });
+
+      if (out instanceof ServerResponse) return;
+
+      res.send(out.map(({ routeName }) => routeName));
     });
   };
 };
@@ -188,8 +207,10 @@ const put_users_userId_posts_postId: () => RequestHandler = () => {
 
       const out = await postServices.updateOne({
         res,
-        postId,
-        partial: body,
+        query: {
+          _id: postId,
+        },
+        update: body,
       });
 
       if (out instanceof ServerResponse) return;
@@ -233,10 +254,24 @@ const post_users_userId_business_routeName_image: () => RequestHandler = () => {
   };
 };
 
+const get_users_userId_payment_plan: () => RequestHandler = () => {
+  return (req, res) => {
+    withTryCatch(req, res, async () => {
+      const { user } = req as RequestWithUser;
+      const { planType } = user.payment.planHistory[0]; // always the firs plan is the curent
+
+      const currentPlan = paymentPlans[planType];
+
+      res.send(currentPlan);
+    });
+  };
+};
+
 export const userHandles = {
   get_users_userId_business,
   post_users_userId_business,
   get_users_userId_business_routeName,
+  get_users_userId_business_all_routeNames,
   put_users_userId_business_routeName,
   delete_users_userId_business_routeName,
   //
@@ -247,4 +282,6 @@ export const userHandles = {
   put_users_userId_posts_postId,
   delete_users_userId_posts_postId,
   post_users_userId_business_routeName_image,
+  //
+  get_users_userId_payment_plan,
 };

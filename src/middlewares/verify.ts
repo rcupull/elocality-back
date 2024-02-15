@@ -45,6 +45,9 @@ export const verifyUser: RequestHandler = (req, res, next) => {
           .status(401)
           .json({ message: "This user has not access to this information" });
       }
+
+      //@ts-expect-error ignore
+      req.user = autehticatedUser;
       next();
     });
   });

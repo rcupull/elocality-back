@@ -16,13 +16,10 @@ interface GetAllArgs {
   search?: string;
   hidden?: boolean;
 }
-const getAll: QueryHandle<GetAllArgs, PaginateResult<Business>> = async ({
-  paginateOptions = {},
-  createdBy,
-  routeName,
-  search,
-  hidden,
-}) => {
+const getAll: QueryHandle<GetAllArgs, PaginateResult<Business>> = async (
+  query
+) => {
+  const { paginateOptions = {}, createdBy, routeName, search, hidden } = query;
   const filterQuery: FilterQuery<Business> = {};
 
   ///////////////////////////////////////////////////////////////////

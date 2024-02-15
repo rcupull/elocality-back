@@ -1,5 +1,4 @@
-import { Schema } from "mongoose";
-import { BaseIdentity } from "../../types";
+import { BaseIdentity, PaymentPlanType } from "../../types";
 
 export type UserRole = "user" | "admin";
 
@@ -11,4 +10,13 @@ export interface User extends BaseIdentity {
   role: UserRole;
   validated: boolean;
   generateAccessJWT: () => string;
+  payment: {
+    planHistory: [
+      {
+        planType: PaymentPlanType;
+        dateOfPurchase: string;
+        trialMode: boolean;
+      }
+    ];
+  };
 }

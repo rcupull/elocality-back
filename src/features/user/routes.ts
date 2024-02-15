@@ -30,6 +30,17 @@ router
   );
 
 router
+  .route("/user/:userId/business/allRouteNames")
+  .get(
+    verifyUser,
+    validators.param("userId").notEmpty(),
+    validators.handle,
+    pagination,
+    userHandles.get_users_userId_business_all_routeNames()
+  );
+/////////////////////////////////////////////////////////////////
+
+router
   .route("/user/:userId/business/:routeName")
   .get(
     verifyUser,
@@ -56,6 +67,8 @@ router
     userHandles.delete_users_userId_business_routeName()
   );
 
+/////////////////////////////////////////////////////////////////
+
 router.route("/user/:userId/business/:routeName/image").post(
   verifyUser,
   //TODO add a middlware to check acces to this business
@@ -65,6 +78,8 @@ router.route("/user/:userId/business/:routeName/image").post(
   uploadMiddleware.single("image"),
   userHandles.post_users_userId_business_routeName_image()
 );
+
+/////////////////////////////////////////////////////////////////
 
 router
   .route("/user/:userId/posts")
@@ -84,6 +99,7 @@ router
     validators.handle,
     userHandles.post_users_userId_posts()
   );
+/////////////////////////////////////////////////////////////////
 
 router
   .route("/user/:userId/posts/:postId")
@@ -109,4 +125,14 @@ router
     validators.handle,
 
     userHandles.delete_users_userId_posts_postId()
+  );
+/////////////////////////////////////////////////////////////////
+
+router
+  .route("/user/:userId/payment/plan")
+  .get(
+    verifyUser,
+    validators.param("userId").notEmpty(),
+    validators.handle,
+    userHandles.get_users_userId_payment_plan()
   );
