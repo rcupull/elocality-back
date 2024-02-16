@@ -1,10 +1,13 @@
-import { NextFunction, Request, RequestHandler, Response } from "express";
+import { Request, RequestHandler, Response } from "express";
 import { withTryCatch } from "../utils/error";
 import jwt from "jsonwebtoken";
 import { SECRET_ACCESS_TOKEN } from "../constants/auth";
 import { UserModel } from "../features/user/schemas";
-import { User, UserRole } from "../features/user/types";
+import { User } from "../features/user/types";
 import { AnyRecord } from "../types";
+import { ServerResponse } from "http";
+import { postServices } from "../features/post/services";
+import { isEqualIds } from "../utils/general";
 
 export const verifyUser: RequestHandler = (req, res, next) => {
   withTryCatch(req, res, async () => {
@@ -63,16 +66,15 @@ export type RequestWithUser<
   user: User;
 };
 
-// export const verifyBussiness = (
-//   req: RequestWithUser,
-//   res: Response,
-//   next: NextFunction
-// ) => {
+/**
+ * Should be put it after verifyUser
+ */
+// export const verifyBussiness: RequestHandler = (req, res, next) => {
 //   withTryCatch(req, res, async () => {
-//     const user = req.user as User | undefined;
-//     const businessId = req.params.businessId as string | undefined;
+//     const user = req.user as unknown as User | undefined;
+//     const routeName = req.params.routeName as string | undefined;
 
-//     if (!businessId) {
+//     if (!routeName) {
 //       return res
 //         .sendStatus(404)
 //         .json({ message: "The businessId does not exist" });
@@ -83,12 +85,19 @@ export type RequestWithUser<
 //     }
 
 //     const out = await businessServices.findOne({
-//       businessId,
-//       user,
 //       res,
+//       routeName,
 //     });
 
 //     if (out instanceof ServerResponse) return;
+
+//     const { createdBy } = out;
+
+//     if (createdBy !== user._id) {
+//       return res
+//         .sendStatus(401)
+//         .json({ message: "Not have access to this business" });
+//     }
 
 //     //@ts-expect-error
 //     req["business"] = out;
@@ -96,6 +105,44 @@ export type RequestWithUser<
 //     next();
 //   });
 // };
+
+export const verifyPost: RequestHandler = (req, res, next) => {
+  withTryCatch(req, res, async () => {
+    //@ts-expect-error ignore  IMPORTANT (Should be put it after verifyUser)
+    const user = req.user as User;
+
+    if (!user) {
+      return res
+        .sendStatus(404)
+        .json({ message: "We should have some value in user in this point" });
+    }
+
+    const postId = req.params.postId as string | undefined;
+
+    if (!postId) {
+      return res
+        .sendStatus(404)
+        .json({ message: "We should have some value in postId in this point" });
+    }
+
+    const out = await postServices.getOne({
+      res,
+      postId,
+    });
+
+    if (out instanceof ServerResponse) return out;
+
+    const { createdBy } = out;
+
+    if (!isEqualIds(createdBy, user._id)) {
+      return res
+        .sendStatus(401)
+        .json({ message: "Have not access to this post" });
+    }
+
+    next();
+  });
+};
 
 // export const getVerifyRole =
 //   (roleToCheck: UserRole): RequestHandler =>
