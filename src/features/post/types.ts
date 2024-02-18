@@ -1,11 +1,7 @@
 import { Schema } from "mongoose";
-import { BaseIdentity } from "../../types";
+import { BaseIdentity, Image } from "../../types";
 
 export type PostCurrency = "CUP" | "MLC" | "USD";
-
-export interface PostImage {
-  url: string;
-}
 
 export type PostColor = "white" | "gray" | "black";
 
@@ -22,7 +18,7 @@ export type PostClothingSize =
 export type PostReviews = [number, number, number, number, number];
 
 export interface Post extends BaseIdentity {
-  images?: Array<PostImage>;
+  images?: Array<Image>;
   routeName: string; // routeName from business
   createdBy: Schema.Types.ObjectId;
   description: string;

@@ -11,6 +11,22 @@ const BusinessSchema = new Schema<Business>({
   hidden: { type: Boolean, default: false },
   category: { type: String, enum: ["food", "tool", "clothing", "service"] },
   createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
+  bannerImages: {
+    type: [
+      {
+        src: { type: String, required: true },
+      },
+    ],
+    default: [],
+  },
+  bannerImageStyle: { type: String, enum: ["static"], default: "static" },
+  socialLinks: {
+    face: { type: String },
+    instagram: { type: String },
+    twitter: { type: String },
+    linkedin: { type: String },
+    youtube: { type: String },
+  },
 });
 
 BusinessSchema.plugin(mongoosePaginate);

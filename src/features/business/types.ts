@@ -1,4 +1,4 @@
-import { BaseIdentity } from "../../types";
+import { BaseIdentity, Image } from "../../types";
 import { Schema } from "mongoose";
 
 export type BusinessCategory = "food" | "tool" | "clothing" | "service";
@@ -9,4 +9,13 @@ export interface Business extends BaseIdentity {
   category: BusinessCategory;
   createdBy: Schema.Types.ObjectId; // userId
   hidden?: boolean;
+  bannerImages?: Array<Image>;
+  bannerImageStyle?: "static";
+  socialLinks: {
+    face?: string;
+    instagram?: string;
+    twitter?: string;
+    linkedin?: string;
+    youtube?: string;
+  };
 }

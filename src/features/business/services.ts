@@ -8,6 +8,7 @@ import {
   paginationCustomLabels,
 } from "../../middlewares/pagination";
 import { ServerResponse } from "http";
+import { PostModel } from "../post/schemas";
 
 interface GetAllArgs {
   paginateOptions?: PaginateOptions;
@@ -143,9 +144,44 @@ const updateOne: QueryHandle<{
   query: {
     routeName: string;
   };
-  update: Partial<Pick<Business, "hidden">>;
+  update: Partial<
+    Pick<
+      Business,
+      | "hidden"
+      | "socialLinks"
+      | "bannerImages"
+      | "bannerImageStyle"
+      | "name"
+      | "routeName"
+    >
+  >;
 }> = async ({ query, update }) => {
-  await BusinessModel.updateOne(query, update);
+  const {
+    hidden,
+    socialLinks,
+    bannerImages,
+    bannerImageStyle,
+    name,
+    routeName,
+  } = update;
+
+  const out = await BusinessModel.updateOne(query, {
+    hidden,
+    socialLinks,
+    bannerImages,
+    bannerImageStyle,
+    name,
+    routeName,
+  });
+
+  await PostModel.updateMany(
+    {
+      routeName: query.routeName,
+    },
+    {
+      routeName,
+    }
+  );
 };
 
 export const businessServices = {

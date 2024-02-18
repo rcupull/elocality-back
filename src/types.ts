@@ -22,4 +22,9 @@ export interface PaymentPlan {
   maxBussinessByUser: number;
   maxPostsByBussiness: number;
   maxImagesByPosts: number;
+  maxImagesByBusinessBanner: number;
+}
+
+export interface Image {
+  url: string;
 }
