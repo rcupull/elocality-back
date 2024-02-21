@@ -150,9 +150,11 @@ const updateOne: QueryHandle<{
       | "hidden"
       | "socialLinks"
       | "bannerImages"
-      | "bannerImageStyle"
       | "name"
       | "routeName"
+      | "logo"
+      | "layouts"
+      | "layoutsMobile"
     >
   >;
 }> = async ({ query, update }) => {
@@ -160,18 +162,22 @@ const updateOne: QueryHandle<{
     hidden,
     socialLinks,
     bannerImages,
-    bannerImageStyle,
     name,
     routeName,
+    logo,
+    layouts,
+    layoutsMobile,
   } = update;
 
   const out = await BusinessModel.updateOne(query, {
     hidden,
     socialLinks,
     bannerImages,
-    bannerImageStyle,
     name,
     routeName,
+    logo,
+    layouts,
+    layoutsMobile,
   });
 
   await PostModel.updateMany(

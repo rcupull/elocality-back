@@ -19,13 +19,78 @@ const BusinessSchema = new Schema<Business>({
     ],
     default: [],
   },
-  bannerImageStyle: { type: String, enum: ["static"], default: "static" },
+  logo: {
+    type: {
+      src: { type: String, required: true },
+    },
+    default: null,
+  },
   socialLinks: {
     face: { type: String },
     instagram: { type: String },
     twitter: { type: String },
     linkedin: { type: String },
     youtube: { type: String },
+  },
+  layouts: {
+    banner: {
+      type: {
+        type: String,
+        enum: ["none", "static", "swipableClassic"],
+        default: "static",
+      },
+    },
+    posts: {
+      type: {
+        type: String,
+        enum: ["none", "grid", "slicesHorizontal", "alternateSummary"],
+        default: "grid",
+      },
+    },
+    footer: {
+      type: {
+        type: String,
+        enum: ["none", "basic"],
+        default: "basic",
+      },
+    },
+    search: {
+      type: {
+        type: String,
+        enum: ["none", "wide", "withButtons"],
+        default: "withButtons",
+      },
+    },
+  },
+  layoutsMobile: {
+    banner: {
+      type: {
+        type: String,
+        enum: ["none", "static", "swipableClassic"],
+        default: "none",
+      },
+    },
+    posts: {
+      type: {
+        type: String,
+        enum: ["none", "grid", "slicesHorizontal", "alternateSummary"],
+        default: "none",
+      },
+    },
+    footer: {
+      type: {
+        type: String,
+        enum: ["none", "basic"],
+        default: "basic",
+      },
+    },
+    search: {
+      type: {
+        type: String,
+        enum: ["none", "wide", "withButtons"],
+        default: "wide",
+      },
+    },
   },
 });
 
