@@ -42,10 +42,7 @@ UserSchema.methods.generateAccessJWT = function () {
     {
       id: this._id,
     },
-    SECRET_ACCESS_TOKEN,
-    {
-      expiresIn: "30d", // TODO handle refreshing token
-    }
+    SECRET_ACCESS_TOKEN
   );
 };
 

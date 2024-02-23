@@ -2,6 +2,7 @@ import { Router } from "express";
 
 import { validators } from "../../middlewares/express-validator";
 import { authHandles } from "./handles";
+import { passportLocalMiddleware } from "../../middlewares/passport";
 
 export const router = Router();
 /////////////////////////////////////////////////////////////////
@@ -9,9 +10,10 @@ export const router = Router();
 router
   .route("/auth/sign-in")
   .post(
-    validators.body("email").notEmpty().isEmail(),
+    validators.body("username").notEmpty(),
     validators.body("password").notEmpty(),
     validators.handle,
+    passportLocalMiddleware,
     authHandles.post_signIn()
   );
 /////////////////////////////////////////////////////////////////

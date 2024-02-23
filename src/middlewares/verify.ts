@@ -1,60 +1,13 @@
 import { Request, RequestHandler, Response } from "express";
 import { withTryCatch } from "../utils/error";
-import jwt from "jsonwebtoken";
-import { SECRET_ACCESS_TOKEN } from "../constants/auth";
-import { UserModel } from "../features/user/schemas";
 import { User } from "../features/user/types";
 import { AnyRecord } from "../types";
 import { ServerResponse } from "http";
 import { postServices } from "../features/post/services";
 import { isEqualIds } from "../utils/general";
+import { passportJwtMiddleware } from "./passport";
 
-export const verifyUser: RequestHandler = (req, res, next) => {
-  withTryCatch(req, res, async () => {
-    let token = req.headers["token"]; // get the session cookie from request header
-    let userIdInParams = req.params["userId"]; // get the session cookie from request header
-
-    if (!token) {
-      return res.sendStatus(401); // if there is no cookie from request header, send an unauthorized response.
-    }
-
-    if (token instanceof Array) {
-      token = token[0];
-    }
-
-    // Verify using jwt to see if token has been tampered with or if it has expired.
-    // that's like checking the integrity of the cookie
-    jwt.verify(token, SECRET_ACCESS_TOKEN, async (err, decoded) => {
-      if (err) {
-        // if token has been altered or has expired, return an unauthorized error
-        return res
-          .status(401)
-          .json({ message: "This session has expired. Please login" });
-      }
-
-      //@ts-expect-error
-      const { id: idInToken } = decoded; // get user id from the decoded token
-      const autehticatedUser = await UserModel.findById(idInToken); // find user by that `id`
-
-      if (!autehticatedUser) {
-        return res.status(401).json({ message: "The user does not exist" });
-      }
-
-      const { _id, role } = autehticatedUser;
-      const idInBD = _id.toString();
-
-      if (role === "user" && idInBD !== userIdInParams) {
-        return res
-          .status(401)
-          .json({ message: "This user has not access to this information" });
-      }
-
-      //@ts-expect-error ignore
-      req.user = autehticatedUser;
-      next();
-    });
-  });
-};
+export const verifyUser = passportJwtMiddleware;
 
 export type RequestWithUser<
   P = AnyRecord,
@@ -108,7 +61,6 @@ export type RequestWithUser<
 
 export const verifyPost: RequestHandler = (req, res, next) => {
   withTryCatch(req, res, async () => {
-    //@ts-expect-error ignore  IMPORTANT (Should be put it after verifyUser)
     const user = req.user as User;
 
     if (!user) {

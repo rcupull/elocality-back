@@ -3,6 +3,7 @@ import { router } from "./router";
 import cors from "cors";
 import swaggerUiExpress from "swagger-ui-express";
 import { connectDB } from "./db";
+import { passportMiddlewareInitialize } from "./middlewares/passport";
 
 const PORT = process.env.PORT || "4009";
 const ENV = process.env.ENV || "prod";
@@ -22,6 +23,10 @@ if (DOC === "true") {
 
 app.use(cors({ origin: "*", optionsSuccessStatus: 200 }));
 app.use(express.static("app-images"));
+
+// app.use(expressSession);
+app.use(passportMiddlewareInitialize);
+// app.use(passportMiddleware.authenticate("session"));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

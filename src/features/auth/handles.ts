@@ -1,56 +1,20 @@
 import { RequestHandler } from "express";
 import { withTryCatch } from "../../utils/error";
-import { RequestWithPagination } from "../../middlewares/pagination";
 import { ServerResponse } from "http";
 import { UserModel } from "../user/schemas";
 import { v4 as uuid } from "uuid";
-import bcrypt from "bcrypt";
 import { SessionModel, ValidationCodeModel } from "./schemas";
 import { userServices } from "../user/services";
 import { sendEmail } from "../email";
+import { User } from "../user/types";
 
 const post_signIn: () => RequestHandler = () => {
-  return (req, res) => {
+  return (req, res, next) => {
     withTryCatch(req, res, async () => {
-      const { email, password } = req.body;
-
-      const user = await UserModel.findOne({ email }).select("+password");
-
-      if (!user) {
-        return res.status(401).json({
-          message: "Invalid email or password",
-        });
-      }
-
-      if (!user.validated) {
-        return res.status(401).json({
-          message: "The user has not been validated",
-        });
-      }
-
-      const isPasswordValid = await bcrypt.compare(password, user.password);
-
-      if (!isPasswordValid) {
-        return res.status(401).json({
-          message: "Invalid email or password",
-        });
-      }
-
-      const token = user.generateAccessJWT();
-
-      const newSession = new SessionModel({
-        token,
-        userId: user._id,
-      });
-
-      await newSession.save();
-
+      const user = req.user as User;
+      //@ts-expect-error ignore
       const { password: ommited, ...userData } = user.toJSON();
-
-      res.status(200).json({
-        user: userData,
-        token,
-      });
+      res.status(200).json({ token: user.generateAccessJWT(), user: userData });
     });
   };
 };

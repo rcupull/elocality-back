@@ -8,8 +8,10 @@ import { connect } from "mongoose";
 
 // const elocalityAuthUri = getUri("elocality_auth");
 
+export const dbUrl = "mongodb://127.0.0.1:27017/community_db";
+
 export const connectDB = () => {
-  connect("mongodb://127.0.0.1:27017/community_db")
+  connect(dbUrl)
     .then(() => {
       console.log("connected");
     })
