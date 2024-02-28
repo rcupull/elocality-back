@@ -6,8 +6,9 @@ import { businessServices } from "../business/services";
 import { Business } from "../business/types";
 import { RequestWithUser } from "../../middlewares/verify";
 import { postServices } from "../post/services";
-import { filesDir } from "../../middlewares/files";
 import { paymentPlans } from "../../constants/plans";
+import { imagesServices } from "../images/services";
+import { Post } from "../post/types";
 
 const get_users_userId_business: () => RequestHandler = () => {
   return (req: RequestWithPagination, res) => {
@@ -122,6 +123,15 @@ const delete_users_userId_business_routeName: () => RequestHandler = () => {
 
       const { routeName, userId } = params;
 
+      /**
+       * Remove all business images
+       */
+      await imagesServices.deleteDir({
+        res,
+        userId,
+        routeName,
+      });
+
       const out = await businessServices.deleteOne({
         res,
         routeName,
@@ -205,6 +215,23 @@ const put_users_userId_posts_postId: () => RequestHandler = () => {
       const { params, body } = req;
       const { postId } = params;
 
+      const { images } = body as Post;
+
+      if (images?.length) {
+        const currentPost = await postServices.getOne({
+          postId,
+          res,
+        });
+
+        if (currentPost instanceof ServerResponse) return currentPost;
+
+        await imagesServices.deleteOldImages({
+          res,
+          newImagesSrcs: body.images,
+          oldImagesSrcs: currentPost.images,
+        });
+      }
+
       const out = await postServices.updateOne({
         res,
         query: {
@@ -226,6 +253,26 @@ const delete_users_userId_posts_postId: () => RequestHandler = () => {
       const { params } = req;
       const { postId, userId } = params;
 
+      const currentPost = await postServices.getOne({
+        postId,
+        res,
+      });
+
+      if (currentPost instanceof ServerResponse) return currentPost;
+
+      /**
+       * Remove all images post
+       */
+      await imagesServices.deleteDir({
+        res,
+        userId,
+        postId,
+        routeName: currentPost.routeName,
+      });
+
+      /**
+       * Removing the post
+       */
       const out = await postServices.deleteMany({
         res,
         ids: [postId],
@@ -235,21 +282,6 @@ const delete_users_userId_posts_postId: () => RequestHandler = () => {
       if (out instanceof ServerResponse) return;
 
       res.send(out);
-    });
-  };
-};
-
-const post_users_userId_business_routeName_image: () => RequestHandler = () => {
-  return (req, res) => {
-    withTryCatch(req, res, async () => {
-      const { file } = req;
-      if (!file) {
-        return res.sendStatus(404).json({ message: "Has not file" });
-      }
-
-      res.send({
-        imageSrc: file.path.replace(filesDir, ""),
-      });
     });
   };
 };
@@ -281,7 +313,6 @@ export const userHandles = {
   get_users_userId_posts_postId,
   put_users_userId_posts_postId,
   delete_users_userId_posts_postId,
-  post_users_userId_business_routeName_image,
   //
   get_users_userId_payment_plan,
 };

@@ -3,11 +3,25 @@ import fs from "fs";
 
 export const filesDir = "app-images";
 
-const storage = multer.diskStorage({
+const imageStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const { userId, routeName } = req.params;
+    const { userId } = req.params;
+    const { routeName, postId } = req.query;
 
-    const path = `./${filesDir}/${userId}/${routeName}/`;
+    if (postId && !routeName) {
+      return cb(new Error("routeName is required to upload a postimage"), "");
+    }
+
+    let path = `./${filesDir}/${userId}/`;
+
+    if (routeName) {
+      path = `${path}${routeName}/`;
+    }
+
+    if (postId) {
+      path = `${path}${postId}/`;
+    }
+
     fs.mkdirSync(path, { recursive: true });
 
     cb(null, path); // Destination folder for uploaded files
@@ -17,4 +31,6 @@ const storage = multer.diskStorage({
   },
 });
 
-export const uploadMiddleware = multer({ storage: storage });
+export const uploadImageMiddleware = multer({
+  storage: imageStorage,
+});

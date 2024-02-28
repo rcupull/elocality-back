@@ -36,7 +36,7 @@ const companyPlan: PaymentPlan = {
   trialTime: 30,
   maxBussinessByUser: 20,
   maxPostsByBussiness: 5000,
-  maxImagesByPosts: 1,
+  maxImagesByPosts: 10,
   maxImagesByBusinessBanner: 20,
 };
 

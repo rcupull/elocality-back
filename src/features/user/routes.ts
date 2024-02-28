@@ -1,10 +1,10 @@
 import { Router } from "express";
 import { pagination } from "../../middlewares/pagination";
 import { validators } from "../../middlewares/express-validator";
-import { verifyPost, verifyUser } from "../../middlewares/verify";
+import { verifyUser } from "../../middlewares/verify";
 
 import { userHandles } from "./handles";
-import { uploadMiddleware } from "../../middlewares/files";
+import { imageHandles } from "../images/handles";
 
 export const router = Router();
 
@@ -69,15 +69,14 @@ router
 
 /////////////////////////////////////////////////////////////////
 
-router.route("/user/:userId/business/:routeName/image").post(
-  //TODO add a middlware to check acces to this business
-  validators.param("userId").notEmpty(),
-  validators.param("routeName").notEmpty(),
-  validators.handle,
-  verifyUser,
-  uploadMiddleware.single("image"),
-  userHandles.post_users_userId_business_routeName_image()
-);
+router
+  .route("/user/:userId/image")
+  .post(
+    validators.param("userId").notEmpty(),
+    validators.handle,
+    verifyUser,
+    imageHandles.get_post_image()
+  );
 
 /////////////////////////////////////////////////////////////////
 
