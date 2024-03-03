@@ -13,6 +13,10 @@ const UserSchema = new Schema<User>({
   passwordVerbose: { type: String, required: true, select: false },
   role: { type: String, enum: ["user", "admin"], default: "user" },
   validated: { type: Boolean, default: false },
+  profileImage: {
+    type: { src: { type: String, required: true } },
+    default: null,
+  },
   payment: {
     planHistory: {
       type: [

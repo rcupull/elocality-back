@@ -11,6 +11,23 @@ export const router = Router();
 /////////////////////////////////////////////////////////////////
 
 router
+  .route("/user/:userId")
+  .get(
+    validators.param("userId").notEmpty(),
+    validators.handle,
+    verifyUser,
+    userHandles.get_users_userId()
+  )
+  .put(
+    validators.param("userId").notEmpty(),
+    validators.handle,
+    verifyUser,
+    userHandles.put_users_userId()
+  );
+
+/////////////////////////////////////////////////////////////////
+
+router
   .route("/user/:userId/business")
   .get(
     validators.param("userId").notEmpty(),

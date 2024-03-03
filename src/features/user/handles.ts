@@ -9,6 +9,78 @@ import { postServices } from "../post/services";
 import { paymentPlans } from "../../constants/plans";
 import { imagesServices } from "../images/services";
 import { Post } from "../post/types";
+import { userServices } from "./services";
+import { User } from "./types";
+
+const get_users_userId: () => RequestHandler = () => {
+  return (req: RequestWithPagination, res) => {
+    withTryCatch(req, res, async () => {
+      const { params } = req;
+
+      const { userId } = params;
+
+      const out = await userServices.getOne({
+        res,
+        query: {
+          _id: userId,
+        },
+      });
+
+      if (out instanceof ServerResponse) return;
+
+      res.send(out);
+    });
+  };
+};
+
+const put_users_userId: () => RequestHandler = () => {
+  return (req: RequestWithPagination, res) => {
+    withTryCatch(req, res, async () => {
+      const { params, body } = req;
+
+      const { userId } = params;
+
+      const { profileImage } = body as User;
+
+      /**
+       * Delete old profile image
+       */
+      if (profileImage) {
+        const currentUser = await userServices.getOne({
+          query: {
+            _id: userId,
+          },
+          res,
+        });
+
+        if (currentUser instanceof ServerResponse) return currentUser;
+
+        if (currentUser.profileImage) {
+          await imagesServices.deleteOldImages({
+            res,
+            newImagesSrcs: [profileImage],
+            oldImagesSrcs: [currentUser.profileImage],
+          });
+        }
+      }
+
+      /**
+       * Update
+       */
+      const out = await userServices.updateOne({
+        res,
+        query: {
+          _id: userId,
+        },
+        update: body,
+      });
+
+      if (out instanceof ServerResponse) return out;
+
+      res.send(out);
+    });
+  };
+};
 
 const get_users_userId_business: () => RequestHandler = () => {
   return (req: RequestWithPagination, res) => {
@@ -300,6 +372,8 @@ const get_users_userId_payment_plan: () => RequestHandler = () => {
 };
 
 export const userHandles = {
+  get_users_userId,
+  put_users_userId,
   get_users_userId_business,
   post_users_userId_business,
   get_users_userId_business_routeName,

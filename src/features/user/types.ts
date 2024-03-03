@@ -1,4 +1,4 @@
-import { BaseIdentity, PaymentPlanType } from "../../types";
+import { BaseIdentity, Image, PaymentPlanType } from "../../types";
 
 export type UserRole = "user" | "admin";
 
@@ -9,6 +9,7 @@ export interface User extends BaseIdentity {
   passwordVerbose: string; // remove after migration
   role: UserRole;
   validated: boolean;
+  profileImage?: Image;
   generateAccessJWT: () => string;
   payment: {
     planHistory: [
