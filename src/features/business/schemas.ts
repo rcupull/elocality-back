@@ -57,8 +57,8 @@ const BusinessSchema = new Schema<Business>({
     search: {
       type: {
         type: String,
-        enum: ["none", "wide", "withButtons"],
-        default: "withButtons",
+        enum: ["none", "left", "center", "right"],
+        default: "right",
       },
     },
   },
@@ -87,8 +87,8 @@ const BusinessSchema = new Schema<Business>({
     search: {
       type: {
         type: String,
-        enum: ["none", "wide", "withButtons"],
-        default: "wide",
+        enum: ["none", "left", "center", "right"],
+        default: "right",
       },
     },
   },

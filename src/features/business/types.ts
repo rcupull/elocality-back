@@ -9,7 +9,7 @@ export type PostsLayoutType =
   | "slicesHorizontal"
   | "alternateSummary";
 export type BannerLayoutType = "none" | "static" | "swipableClassic";
-export type SearchLayoutType = "none" | "wide" | "withButtons";
+export type SearchLayoutType = "none" | "left" | "center" | "right";
 export type FooterLayoutType = "none" | "basic";
 
 export interface PostsLayout {
