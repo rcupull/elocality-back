@@ -45,7 +45,56 @@ const get_business_routeName: () => RequestHandler = () => {
   };
 };
 
+const get_business_post_categories: () => RequestHandler = () => {
+  return (req, res) => {
+    withTryCatch(req, res, async () => {
+      const { params } = req;
+      const { routeName } = params;
+
+      const out = await businessServices.findOne({
+        res,
+        routeName,
+      });
+
+      if (out instanceof ServerResponse) return;
+
+      res.send(out.postCategories);
+    });
+  };
+};
+
+const add_business_post_category: () => RequestHandler = () => {
+  return (req, res) => {
+    withTryCatch(req, res, async () => {
+      const { params, body } = req;
+      const { routeName } = params;
+      const { label } = body;
+
+      const out = await businessServices.updateOne({
+        res,
+        query: {
+          routeName,
+        },
+        update: {
+          $push: {
+            postCategories: {
+              label,
+            },
+          },
+        },
+      });
+
+      if (out instanceof ServerResponse) return out;
+
+      res.status(200).json({});
+    });
+  };
+};
+
 export const businessHandles = {
   get_business,
   get_business_routeName,
+  //
+  get_business_post_categories,
+  add_business_post_category,
 };

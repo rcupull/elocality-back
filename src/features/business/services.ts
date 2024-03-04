@@ -1,4 +1,9 @@
-import { FilterQuery, PaginateOptions } from "mongoose";
+import {
+  FilterQuery,
+  PaginateOptions,
+  UpdateQuery,
+  UpdateWithAggregationPipeline,
+} from "mongoose";
 import { QueryHandle } from "../../types";
 import { Business, BusinessCategory } from "./types";
 import { BusinessModel } from "./schemas";
@@ -144,50 +149,26 @@ const updateOne: QueryHandle<{
   query: {
     routeName: string;
   };
-  update: Partial<
-    Pick<
-      Business,
-      | "hidden"
-      | "socialLinks"
-      | "bannerImages"
-      | "name"
-      | "routeName"
-      | "logo"
-      | "layouts"
-      | "layoutsMobile"
-    >
-  >;
+  update:
+    | UpdateQuery<
+        Partial<
+          Pick<
+            Business,
+            | "hidden"
+            | "socialLinks"
+            | "bannerImages"
+            | "name"
+            | "routeName"
+            | "logo"
+            | "layouts"
+            | "layoutsMobile"
+            | "postCategories"
+          >
+        >
+      >
+    | UpdateWithAggregationPipeline;
 }> = async ({ query, update }) => {
-  const {
-    hidden,
-    socialLinks,
-    bannerImages,
-    name,
-    routeName,
-    logo,
-    layouts,
-    layoutsMobile,
-  } = update;
-
-  const out = await BusinessModel.updateOne(query, {
-    hidden,
-    socialLinks,
-    bannerImages,
-    name,
-    routeName,
-    logo,
-    layouts,
-    layoutsMobile,
-  });
-
-  await PostModel.updateMany(
-    {
-      routeName: query.routeName,
-    },
-    {
-      routeName,
-    }
-  );
+  await BusinessModel.updateOne(query, update);
 };
 
 export const businessServices = {

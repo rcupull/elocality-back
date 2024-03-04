@@ -35,6 +35,10 @@ export interface BusinessLayouts {
   banner?: BannerLayout;
 }
 
+export interface PostCategory {
+  label: string;
+}
+
 export interface Business extends BaseIdentity {
   name: string;
   routeName: string;
@@ -43,6 +47,7 @@ export interface Business extends BaseIdentity {
   hidden?: boolean;
   bannerImages?: Array<Image>;
   logo?: Image;
+  postCategories?: Array<PostCategory>;
   socialLinks: {
     face?: string;
     instagram?: string;

@@ -5,6 +5,7 @@ import { verifyUser } from "../../middlewares/verify";
 
 import { userHandles } from "./handles";
 import { imageHandles } from "../images/handles";
+import { businessHandles } from "../business/handles";
 
 export const router = Router();
 
@@ -46,6 +47,8 @@ router
     userHandles.post_users_userId_business()
   );
 
+/////////////////////////////////////////////////////////////////
+
 router
   .route("/user/:userId/business/allRouteNames")
   .get(
@@ -82,6 +85,26 @@ router
     validators.handle,
     verifyUser,
     userHandles.delete_users_userId_business_routeName()
+  );
+
+/////////////////////////////////////////////////////////////////
+
+router
+  .route("/user/:userId/business/:routeName/postCategories")
+  .get(
+    validators.param("userId").notEmpty(),
+    validators.param("routeName").notEmpty(),
+    validators.handle,
+    verifyUser,
+    businessHandles.get_business_post_categories()
+  )
+  .post(
+    validators.param("userId").notEmpty(),
+    validators.param("routeName").notEmpty(),
+    validators.body("label").notEmpty(),
+    validators.handle,
+    verifyUser,
+    businessHandles.add_business_post_category()
   );
 
 /////////////////////////////////////////////////////////////////

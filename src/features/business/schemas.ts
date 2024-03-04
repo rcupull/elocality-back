@@ -11,6 +11,13 @@ const BusinessSchema = new Schema<Business>({
   hidden: { type: Boolean, default: false },
   category: { type: String, enum: ["food", "tool", "clothing", "service"] },
   createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
+  postCategories: {
+    type: [
+      {
+        label: { type: String, required: true },
+      },
+    ],
+  },
   bannerImages: {
     type: [
       {
