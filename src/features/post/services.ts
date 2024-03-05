@@ -15,6 +15,7 @@ const getAll: QueryHandle<
     hidden?: boolean;
     hiddenBusiness?: boolean;
     createdBy?: string;
+    postCategoriesTags?: Array<string>;
   },
   PaginateResult<Post>
 > = async ({
@@ -24,6 +25,7 @@ const getAll: QueryHandle<
   hiddenBusiness,
   hidden,
   createdBy,
+  postCategoriesTags,
 }) => {
   const filterQuery: FilterQuery<Post> = {};
 
@@ -32,6 +34,11 @@ const getAll: QueryHandle<
   if (search) {
     filterQuery.name = { $regex: new RegExp(search), $options: "i" };
   }
+
+  if (postCategoriesTags) {
+    filterQuery.postCategoriesTags = { $all: postCategoriesTags };
+  }
+
   ///////////////////////////////////////////////////////////////////
 
   if (routeNames?.length) {
@@ -165,6 +172,7 @@ const updateOne: QueryHandle<{
       | "hiddenBusiness"
       | "name"
       | "reviews"
+      | "postCategoriesTags"
     >
   >;
 }> = async ({ query, update }) => {
@@ -182,6 +190,7 @@ const updateOne: QueryHandle<{
     description,
     hidden,
     hiddenBusiness,
+    postCategoriesTags,
   } = update;
 
   await PostModel.updateOne(query, {
@@ -198,6 +207,7 @@ const updateOne: QueryHandle<{
     description,
     hidden,
     hiddenBusiness,
+    postCategoriesTags,
   });
 };
 

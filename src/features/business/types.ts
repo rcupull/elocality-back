@@ -9,7 +9,16 @@ export type PostsLayoutType =
   | "slicesHorizontal"
   | "alternateSummary";
 export type BannerLayoutType = "none" | "static" | "swipableClassic";
-export type SearchLayoutType = "none" | "left" | "center" | "right";
+export type SearchLayoutType =
+  | "none"
+  | "left"
+  | "center"
+  | "right"
+  | "postCategories"
+  | "postCategoriesScrollable"
+  | "postCategoriesExcluded"
+  | "postCategoriesExcludedScrollable";
+
 export type FooterLayoutType = "none" | "basic";
 
 export interface PostsLayout {
@@ -37,6 +46,8 @@ export interface BusinessLayouts {
 
 export interface PostCategory {
   label: string;
+  tag: string;
+  hidden?: boolean;
 }
 
 export interface Business extends BaseIdentity {

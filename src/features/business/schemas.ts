@@ -15,6 +15,8 @@ const BusinessSchema = new Schema<Business>({
     type: [
       {
         label: { type: String, required: true },
+        tag: { type: String, required: true },
+        hidden: { type: Boolean, default: false },
       },
     ],
   },
@@ -64,7 +66,16 @@ const BusinessSchema = new Schema<Business>({
     search: {
       type: {
         type: String,
-        enum: ["none", "left", "center", "right"],
+        enum: [
+          "none",
+          "left",
+          "center",
+          "right",
+          "postCategories",
+          "postCategoriesExcluded",
+          "postCategoriesScrollable",
+          "postCategoriesExcludedScrollable",
+        ],
         default: "right",
       },
     },
@@ -94,7 +105,16 @@ const BusinessSchema = new Schema<Business>({
     search: {
       type: {
         type: String,
-        enum: ["none", "left", "center", "right"],
+        enum: [
+          "none",
+          "left",
+          "center",
+          "right",
+          "postCategories",
+          "postCategoriesExcluded",
+          "postCategoriesScrollable",
+          "postCategoriesExcludedScrollable",
+        ],
         default: "right",
       },
     },

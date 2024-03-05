@@ -102,9 +102,29 @@ router
     validators.param("userId").notEmpty(),
     validators.param("routeName").notEmpty(),
     validators.body("label").notEmpty(),
+    validators.body("tag").notEmpty(),
     validators.handle,
     verifyUser,
     businessHandles.add_business_post_category()
+  );
+
+router
+  .route("/user/:userId/business/:routeName/postCategories/:tag")
+  .put(
+    validators.param("userId").notEmpty(),
+    validators.param("routeName").notEmpty(),
+    validators.param("tag").notEmpty(),
+    validators.handle,
+    verifyUser,
+    businessHandles.put_business_post_category()
+  )
+  .delete(
+    validators.param("userId").notEmpty(),
+    validators.param("routeName").notEmpty(),
+    validators.param("tag").notEmpty(),
+    validators.handle,
+    verifyUser,
+    businessHandles.del_business_post_category()
   );
 
 /////////////////////////////////////////////////////////////////

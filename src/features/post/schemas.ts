@@ -14,6 +14,7 @@ const PostSchema = new Schema<Post>({
   hidden: { type: Boolean, default: false },
   hiddenBusiness: { type: Boolean, default: false },
   createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
+  postCategoriesTags: { type: [String] },
   images: [
     {
       src: { type: String, required: true },
